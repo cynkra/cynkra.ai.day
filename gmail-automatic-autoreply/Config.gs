@@ -13,6 +13,5 @@ var MAX_WINDOW_EXTENSIONS = 10;
 // {available_date} is replaced with the first working day after the last OOO day
 // (e.g. if OOO ends on a Friday, {available_date} will be the following Monday).
 var AUTOREPLY_MESSAGE_TEMPLATE =
-  "Thank you for your email. I am currently out of the office and will not " +
-  "see this message before {available_date}. I will be available again on " +
-  "{available_date} and will get back to you then.";
+  "Thank you for your email. I am currently out of the office and will only " +
+  "be available again on {available_date}. I will get back to you as soon as possible.";
