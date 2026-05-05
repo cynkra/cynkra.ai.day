@@ -233,12 +233,14 @@ old_comments_df <- tibble(
 flag_pattern <- "TODO|FIXME|HACK|XXX|BUG|KLUDGE"
 flagged_idx  <- grepl(flag_pattern, comment_texts, ignore.case = TRUE)
 flagged_df   <- tibble(
+  raw     = comment_texts[flagged_idx],
   Comment = clean_comment(comment_texts[flagged_idx]),
   File    = path_rel(comment_paths[flagged_idx], "r-source"),
   Line    = comment_lines[flagged_idx]
 ) |>
-  mutate(Tag = regmatches(Comment,
-                          regexpr(flag_pattern, Comment, ignore.case = TRUE))) |>
+  mutate(Tag = toupper(sub(paste0(".*(", flag_pattern, ").*"), "\\1",
+                           raw, ignore.case = TRUE))) |>
+  select(-raw) |>
   arrange(Tag, File) |>
   head(20L)
 

@@ -145,7 +145,7 @@ By convention, every `.Internal` call routes to a C function whose name starts w
 
 ## `goto` in the Wild
 
-Despite being considered harmful since 1968, base R's C source contains **681 `goto` statements**. Top offending files:
+Base R's C source contains **681 `goto` statements**, mostly used for error-handling cleanup. Top files:
 
 | File | Gotos |
 | --- | --- |
@@ -209,195 +209,40 @@ There are **787 C comments** that mention a year between 1970 and 2005. The olde
 | Year | File | Comment |
 | --- | --- | --- |
 | 1970 | [src/gnuwin32/fixed/h/config.h](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/gnuwin32/fixed/h/config.h#L1026) | /* Define if your mktime works correctly before 1970. */ |
-| 1970 | [src/main/Rstrptime.h](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/main/Rstrptime.h#L145) | /* We know that January 1st 1970 was a Thursday (= 4).  Compute the
-       the difference between this data in the one on TM and so determine
-       the weekday.  */ |
-| 1970 | [src/main/datetime.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/main/datetime.c#L108) | /*
-
-There are two implementation paths here.
-Inspectable from R,  sessionInfo()$tzcode_type  is either
-  1) "system (<libc>)"  (with '<libc>' = 'glibc' usually)  or
-  2) "internal"
-
-1) Use the system functions for mktime, gmtime[_r], localtime[_r], strftime.
-   Use the system time_t, struct tm and time-zone tables.
-
-   This can be use on glibc, macOS and Solaris (and probably FreeBSD),
-   but all except 64-bit glibc have issues we can try to work around.
-   It could in principle be used on Windows but the issues there are
-   too severe (no support for before 1970) to work around.
-
-   The system facilities are used for 1902-2037 and outside those
-   limits where there is a 64-bit time_t and the conversions work
-   (some OSes have only 32-bit time-zone tables and macOS 13 only
-   works from 1900).  Otherwise there is code below to extrapolate
-   from 1902-2037.
-
-   Other known issues are with strftime (macOS only supports offsets
-   in multiple of half-hours), not having tzdata tables (possible on
-   Alpine and now fatal when configuring) and odd issues reading the
-   time-zone tables, especially for 1939-1945.
-
-2) USE_INTERNAL_MKTIME : Use substitutes from src/extra/tzone for
-   mktime, gmtime_r, localtime_r, strftime with a R_ prefix.  The
-   system strftime is used for locale-dependent names in R_strptime
-   and R_strftime.  This uses the time-zone tables shipped with R and
-   installed into R_HOME/share/zoneinfo , with facilities to switch to
-   others using environment variable TZDIR.
-
-   Our own versions of time_t (64-bit) and struct tm (including the
-   BSD-style fields tm_zone and tm_gmtoff) are used.
-
-   PATH 2) was added for R 3.1.0 (2014-04), is the only one
-   supported on Windows and is the current default on macOS.
-
-*/ |
+| 1970 | [src/main/Rstrptime.h](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/main/Rstrptime.h#L145) | /* We know that January 1st 1970 was a Thursday (= 4). Compute the the difference between this data in the one on TM and… |
+| 1970 | [src/main/datetime.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/main/datetime.c#L108) | /* There are two implementation paths here. Inspectable from R, sessionInfo()$tzcode_type is either 1) "system (<libc>)"… |
 | 1970 | [src/main/datetime.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/main/datetime.c#L197) | // Careful : days_in_year is for base-0 years, days_in_month for base-1970. |
 | 1970 | [src/main/datetime.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/main/datetime.c#L469) | /* a benighted OS with date before 1970 */ |
-| 1970 | [src/main/datetime.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/main/datetime.c#L470) | /* We could not use 1970 because of the Windows bug with
-	   1970-01-01 east of GMT. */ |
+| 1970 | [src/main/datetime.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/main/datetime.c#L470) | /* We could not use 1970 because of the Windows bug with 1970-01-01 east of GMT. */ |
 | 1970 | [src/main/datetime.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/main/datetime.c#L644) | // This cannot exceed (2^31-1) years in either direction from 1970 |
 | 1970 | [src/main/datetime.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/main/datetime.c#L666) | /* weekday: 1970-01-01 was a Thursday */ |
 | 1970 | [src/main/datetime.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/main/datetime.c#L1658) | /* weekday: 1970-01-01 was a Thursday */ |
-| 1970 | [src/main/g_her_glyph.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/main/g_her_glyph.c#L5) | /* This file defines the arrays _occidental_hershey_glyphs[] and
-   _oriental_hershey_glyphs[].  The first array includes the standard
-   (`occidental') Hershey glyphs digitized by Dr. Allen V. Hershey, some
-   glyphs due to other people, and his Japanese Hiragana and Katakana
-   glyphs.  The second array includes his digitizations of Japanese
-   ideographic symbols (Kanji glyphs).  It originally included the Hiragana
-   and Katakana glyphs as well, but they were moved to the first array
-   because some people may not wish to include Kanji support.
-
-   Dr. Hershey digitized the glyphs c. 1967, at what is now the U.S. Naval
-   Surface Weapons Center in Dahlgren, Virginia.  For many years he
-   distributed copies of the glyphs, and his typographic software, on
-   magnetic tape.  Over 120 copies of the tape were distributed.  There
-   have been many other distributions of the glyphs.  In the 1970's they
-   were incorporated, not always with attribution, in several commercial
-   plotting packages.  They were first freely distributed in 1985(?), by
-   being posted to Usenet (to vol. 4 of mod.sources) by Pete Holzmann
-   <pete@xc.org>, then at Octopus Enterprises.  In the 1980's the glyphs
-   were incorporated in at least two freeware plotting programs, Nelson
-   Beebe's PLOT79 and Tim Pearson's PGPLOT.  The latter is still available
-   (see http://astro.caltech.edu/~tjp/pgplot/ ).
-
-   The standard hardcopy reference for the occidental Hershey glyphs, which
-   tabulates and displays them, is:
-
-   @TechReport{Wolcott76,
-     author =       {Norman M. Wolcott and Joseph Hilsenrath},
-     title =        {A Contribution to Computer Typesetting Techniques:
-		     Tables of Coordinates for {Hershey's} Repertory of
-		     Occidental Type Fonts and Graphic Symbols},
-     institution =  {U.S. National Bureau of Standards},
-     year =         {1976},
-     month =        {April},
-     type =         {Special Publication},
-     number =       {424},
-     OPTnote =      {US NTIS stock number PB251845}}
-
-   This publication is available from the NTIS (US National Technical
-   Information Service, +1 703 487 4650).  The NTIS stock number is given
-   above.  See also Dr. Hershey's original TR, which describes the
-   alphabets from which the glyphs were taken and gives information on the
-   oriental glyphs:
-
-   @TechReport{Hershey67,
-     author =	 {Allen V. Hershey},
-     title =	 {Calligraphy for Computers},
-     institution =  {U.S. Naval Weapons Laboratory},
-     address =	 {Dahlgren, VA},
-     year =	 {1967},
-     type =	 {Report},
-     number =	 {TR--2101},
-     month =	 {Aug},
-     OPTnote =	 {US NTIS stock number AD662398}}
-
-   Additional references are given in the file ./doc/hershey.bib.
-
-   The _occidental_hershey_glyphs[] array below was constructed from
-   releases of the Hershey glyphs that are later than the one described in
-   the 1976 NBS publication above.  For example, Fig. 15 of that work
-   portrays 43 additional glyphs digitized by Norman Wolcott of the NBS;
-   they are included here.  See the file ./doc/hershey-number for details
-   on how the array was assembled.  The original Hershey glyphs, including
-   the 43 Wolcott glyphs, are stored in the 0..3999 slots of the array.
-
-   The _occidental_hershey_glyphs[] array also includes non-Hershey glyphs
-   taken from various sources.  All post-Hershey glyphs have been placed in
-   slots 4000..4194.  This includes a few glyphs taken from the UGS (the
-   Unified Graphics System, developed by Bob Beach at SLAC; see Computer
-   Graphics, Fall 1974, pp. 22-23).  As well, it includes some freeware
-   glyphs developed by Thomas Wolff <wolff@inf.fu-berlin.de> and
-   distributed as part of the Ghostscript distribution.  The Beach and
-   Wolff glyphs are used in the Hershey Symbol fonts.  Locally developed
-   glyphs (accented characters, in particular) have been added too.
-
-   The Japanese Hiragana and Katakana glyphs digitized by Dr. Hershey,
-   formerly located among the `oriental' glyphs, are now located in slots
-   4195..4399 of the _occidental_hershey_glyphs[] array.
-
-   The format of the glyphs in the _occidental_hershey_glyphs[] and
-   _oriental_hershey_glyphs[] arrays is the format in which the Hershey
-   glyphs were distributed to mod.sources in 1985(?) by Pete Holzmann, and
-   is due to Jim Hurt, then at Cognition Inc.  Glyphs are encoded as
-   strings consisting of pairs of printable ascii characters in the range
-   0x20 to 0x7e, i.e. SP (ascii space) through ~ (ascii tilde).  Each
-   character in the range [0x20,0x7e] encodes an integer.  The integer may
-   be obtained from the character by subtracting 'R', i.e, 0x52.  Integers
-   in the range [-0x32,0x2c], i.e., [-50,44], may be represented in this
-   way.  Actually, all integers appearing in the occidental Hershey glyphs
-   are restricted to the range [-41,41], and those in the oriental glyphs
-   are restricted to the range [-12,13].
-
-   (Note: the non-Hershey pointing hand glyphs in slots 4040..4043 of the
-   _occidental_hershey_glyphs[] array, which are due to Nelson Beebe,
-   include integers drawn from the range [-50,50].  So the four
-   corresponding strings include characters drawn from outside the
-   printable ASCII range, e.g. \204 (i.e. 0x84), which represents 50.)
-
-   The first two characters in each string encode the x range
-   (xinit,xfinal) of a glyph.  (The `width' of the glyph, as distinct from
-   the x extent of its bounding box, is xfinal - xinit.)  Subsequent pairs
-   encode (x1,y1),(x2,y2),(x3,y3),..., i.e., the coordinates of points.
-   The glyph is drawn by moving to (x1,y1), stroking a vector to (x2,y2),
-   stroking a vector to (x3,y3), etc.  The pair (-50,0), which is encoded
-   as the pair of characters " R", if encountered in the string is
-   interpreted as a `pen up' command: the vector immediately following
-   should be drawn with pen up, i.e., should be interpreted as a motion
-   command rather than a drawing command.
-
-   (The pair (-50,0) could conceivably appear in the abovementioned
-   pointing hand glyphs as the coordinates of a vector endpoint, but
-   fortunately it does not.  So Jim Hurt's encoding scheme works, even for
-   the four pointing hands.)  */ |
+| 1970 | [src/main/g_her_glyph.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/main/g_her_glyph.c#L5) | /* This file defines the arrays _occidental_hershey_glyphs[] and _oriental_hershey_glyphs[]. The first array includes th… |
 
 **20 comments** carry a TODO / FIXME / HACK / XXX marker:
 
 | Tag | File | Comment |
 | --- | --- | --- |
-| BUG | [src/extra/graphapp/internal.h](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/graphapp/internal.h#L32) | /*
- *  Set DEBUG to 1 to produce object debugging, otherwise zero.
- */ |
+| BUG | [src/extra/graphapp/drawtext.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/graphapp/drawtext.c#L1) | /* * GraphApp - Cross-Platform Graphics Programming Library. * * File: drawtext.c -- cross-platform portable drawing fun… |
+| BUG | [src/extra/graphapp/internal.h](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/graphapp/internal.h#L32) | /* * Set DEBUG to 1 to produce object debugging, otherwise zero. */ |
+| BUG | [src/extra/graphapp/internal.h](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/graphapp/internal.h#L396) | /* Debugging functions. */ |
+| BUG | [src/extra/graphapp/windows.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/graphapp/windows.c#L657) | /* workaround for Show bug */ |
+| BUG | [src/extra/intl/lock.h](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/intl/lock.h#L99) | /* The way to test at runtime whether libpthread is present is to test whether a function pointer's value, such as &pthr… |
+| BUG | [src/extra/intl/plural.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/intl/plural.c#L144) | /* Put the tokens into the symbol table, so that GDB and other debuggers know about them. */ |
+| BUG | [src/extra/intl/plural.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/intl/plural.c#L747) | /* Enable debugging if requested. */ |
 | BUG | [src/extra/intl/plural.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/intl/plural.c#L903) | /* !YYDEBUG */ |
 | BUG | [src/extra/intl/plural.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/intl/plural.c#L908) | /* !YYDEBUG */ |
+| BUG | [src/extra/intl/printf-args.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/intl/printf-args.c#L99) | /* A null pointer is an invalid argument for "%s", but in practice it occurs quite frequently in printf statements that … |
+| BUG | [src/extra/intl/printf-args.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/intl/printf-args.c#L108) | /* A null pointer is an invalid argument for "%ls", but in practice it occurs quite frequently in printf statements that… |
+| BUG | [src/extra/intl/printf-args.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/intl/printf-args.c#L148) | /* A null pointer is an invalid argument for "%U", but in practice it occurs quite frequently in printf statements that … |
+| BUG | [src/extra/intl/printf-args.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/intl/printf-args.c#L160) | /* A null pointer is an invalid argument for "%lU", but in practice it occurs quite frequently in printf statements that… |
+| BUG | [src/extra/intl/printf-args.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/intl/printf-args.c#L172) | /* A null pointer is an invalid argument for "%llU", but in practice it occurs quite frequently in printf statements tha… |
+| BUG | [src/extra/intl/tsearch.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/intl/tsearch.c#L1) | /* Copyright (C) 1995, 1996, 1997, 2000, 2006 Free Software Foundation, Inc. Contributed by Bernd Schmidt <crux@Pool.Inf… |
+| BUG | [src/extra/intl/vasnprintf.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/intl/vasnprintf.c#L258) | /* Converting 'long double' to decimal without rare rounding bugs requires real bignums. We use the naming conventions o… |
 | BUG | [src/extra/tre/tre-ast.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/tre/tre-ast.c#L229) | /* TRE_DEBUG */ |
 | BUG | [src/extra/tre/tre-ast.h](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/tre/tre-ast.h#L124) | /* TRE_DEBUG */ |
 | BUG | [src/extra/tre/tre-compile.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/tre/tre-compile.c#L1765) | /* TRE_DEBUG */ |
 | BUG | [src/extra/tre/tre-compile.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/tre/tre-compile.c#L1933) | /* TRE_DEBUG */ |
-| BUG | [src/extra/tre/tre-compile.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/tre/tre-compile.c#L1959) | /* TRE_DEBUG */ |
-| BUG | [src/extra/tre/tre-compile.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/tre/tre-compile.c#L1994) | /* TRE_DEBUG */ |
-| BUG | [src/extra/tre/tre-compile.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/tre/tre-compile.c#L2019) | /* TRE_DEBUG */ |
-| BUG | [src/extra/tre/tre-compile.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/tre/tre-compile.c#L2133) | /* TRE_DEBUG */ |
-| BUG | [src/extra/tre/tre-internal.h](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/tre/tre-internal.h#L26) | /* !TRE_DEBUG */ |
-| BUG | [src/extra/tre/tre-internal.h](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/tre/tre-internal.h#L28) | /* !TRE_DEBUG */ |
-| BUG | [src/extra/tre/tre-internal.h](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/tre/tre-internal.h#L231) | /* NDEBUG */ |
-| BUG | [src/extra/tre/tre-match-approx.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/tre/tre-match-approx.c#L126) | /* TRE_DEBUG */ |
-| BUG | [src/extra/tre/tre-match-approx.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/tre/tre-match-approx.c#L662) | /* TRE_DEBUG */ |
-| BUG | [src/extra/tre/tre-match-backtrack.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/tre/tre-match-backtrack.c#L412) | /* TRE_DEBUG */ |
-| BUG | [src/extra/tre/tre-match-parallel.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/tre/tre-match-parallel.c#L105) | /* TRE_DEBUG */ |
-| BUG | [src/extra/tre/tre-match-parallel.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/tre/tre-match-parallel.c#L351) | /* TRE_DEBUG */ |
-| BUG | [src/extra/tre/tre-mem.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/tre/tre-mem.c#L88) | /* MALLOC_DEBUGGING */ |
 
 ## Funny & Colorful Comments
 
@@ -405,44 +250,31 @@ Comments containing strong opinions, exclamations, or evocative adjectives (C an
 
 | Comment | File | Lang |
 | --- | --- | --- |
+| /* computes `left' := max( i ; 1 <= i <= n && xt[i] <= x ) . ****** i n p u t ****** xt numeric vector of length n , ass… | [src/appl/interv.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/appl/interv.c#L58) | C |
 | /* accept new point? */ | [src/appl/optim.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/appl/optim.c#L768) | C |
 | // subnormals underflowing to zero (not yet seen!) | [src/appl/pretty.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/appl/pretty.c#L142) | C |
-| /*	We don't do this because the printRealMatrix
-	code takes a SEXP rather than a double*.
-	We could do something ugly like use fixed e format
-	but that would be UGLY!
-     */ | [src/appl/uncmin.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/appl/uncmin.c#L2129) | C |
+| /* CC subroutines mvmlt[lsu] should be REPLACED by BLAS ones! * CC * CC--- choldc(nr,n,a,diagmx,tol,addmax) is ``cholesk… | [src/appl/uncmin.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/appl/uncmin.c#L43) | C |
+| /* Check input for reasonableness. * Return *msg in {-1,-2,..,-7} if something is wrong * PARAMETERS : * n --> dimension… | [src/appl/uncmin.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/appl/uncmin.c#L1979) | C |
+| /* We don't do this because the printRealMatrix code takes a SEXP rather than a double*. We could do something ugly like… | [src/appl/uncmin.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/appl/uncmin.c#L2129) | C |
 | /* Correct format already! */ | [src/extra/graphapp/bitmaps.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/graphapp/bitmaps.c#L342) | C |
 | /* Correct format already! */ | [src/extra/graphapp/bitmaps.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/graphapp/bitmaps.c#L377) | C |
 | /* Why was this previously commented out? CJ */ | [src/extra/graphapp/buttons.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/graphapp/buttons.c#L832) | C |
+| /* * Add a new DC into our list of DCs. This is kind of ugly: num_contexts just keeps growing, unless * del_all_contexts… | [src/extra/graphapp/context.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/graphapp/context.c#L184) | C |
 | /* Has a colour or width change occured? */ | [src/extra/graphapp/context.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/graphapp/context.c#L376) | C |
-| /* don't believe current sizes!
-	       dw = r.width - obj->rect.width;
-	       dh = r.height - obj->rect.height;
-	       Rprintf("dw %d dh %d\n", dw, dh); */ | [src/extra/graphapp/controls.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/graphapp/controls.c#L257) | C |
-| /* if (obj->refcount == 1)   why would this test be here?? */ | [src/extra/graphapp/controls.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/graphapp/controls.c#L948) | C |
+| /* The original here used GetWindowRect (which used screen coordinates) and MoveWindow (which uses client coordinates) s… | [src/extra/graphapp/controls.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/graphapp/controls.c#L234) | C |
+| /* don't believe current sizes! dw = r.width - obj->rect.width; dh = r.height - obj->rect.height; Rprintf("dw %d dh %d\n… | [src/extra/graphapp/controls.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/graphapp/controls.c#L257) | C |
+| /* if (obj->refcount == 1) why would this test be here?? */ | [src/extra/graphapp/controls.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/graphapp/controls.c#L948) | C |
 | /* FIXME: is the copy needed? */ | [src/extra/graphapp/dialogs.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/graphapp/dialogs.c#L518) | C |
+| /* * The old fillellipse function. * * This function used the inbuilt Windows Ellipse function, * which is not symmetric… | [src/extra/graphapp/drawing.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/graphapp/drawing.c#L442) | C |
+| /* * GraphApp - Cross-Platform Graphics Programming Library. * * File: drawtext.c -- cross-platform portable drawing fun… | [src/extra/graphapp/drawtext.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/graphapp/drawtext.c#L1) | C |
 | /* typewriter ping! */ | [src/extra/graphapp/drawtext.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/graphapp/drawtext.c#L378) | C |
 | /* Nowhere to send events! */ | [src/extra/graphapp/events.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/graphapp/events.c#L1066) | C |
 | /* Nowhere to send events! */ | [src/extra/graphapp/events.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/graphapp/events.c#L1199) | C |
-| /* Claim that this was wrong:
-       http://blogs.msdn.com/oldnewthing/archive/2005/07/07/436435.aspx
-
-       SystemFont = new_font_object(GetStockObject(DEFAULT_GUI_FONT));
-    */ | [src/extra/graphapp/fonts.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/graphapp/fonts.c#L126) | C |
+| /* Claim that this was wrong: http://blogs.msdn.com/oldnewthing/archive/2005/07/07/436435.aspx SystemFont = new_font_obj… | [src/extra/graphapp/fonts.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/graphapp/fonts.c#L126) | C |
 | /* We should never get here, but we do? */ | [src/extra/graphapp/gdraw.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/graphapp/gdraw.c#L49) | C |
 | /* note: next is unused! */ | [src/extra/graphapp/gdraw.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/graphapp/gdraw.c#L143) | C |
 | /* what kind of object is it? */ | [src/extra/graphapp/internal.h](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/graphapp/internal.h#L197) | C |
 | /* at end of list, success! */ | [src/extra/graphapp/menus.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/graphapp/menus.c#L214) | C |
-| /* Must call private destructor first! */ | [src/extra/graphapp/objects.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/graphapp/objects.c#L606) | C |
-| /* FIXME: can PrintDlg change the current directory? */ | [src/extra/graphapp/printer.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/graphapp/printer.c#L70) | C |
-| /* FIXME: use PrintDlgEx? */ | [src/extra/graphapp/printer.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/graphapp/printer.c#L103) | C |
-| /* Return transparent if the color doesn't exist.
- *  Case insensitive comparison?
-*/ | [src/extra/graphapp/rgb.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/graphapp/rgb.c#L1361) | C |
-| /* Forced termination - no user interference! */ | [src/extra/graphapp/windows.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/graphapp/windows.c#L381) | C |
-| /* We found it!  */ | [src/extra/intl/bindtextdom.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/intl/bindtextdom.c#L101) | C |
-| /* Bogus.  */ | [src/extra/intl/dcigettext.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/intl/dcigettext.c#L532) | C |
 
 ## Interesting Function Names
 
@@ -493,7 +325,7 @@ Comments containing strong opinions, exclamations, or evocative adjectives (C an
 - The biggest single R function, `.check_packages`, spans **7926 lines** of R.
 - The most-called internal C function is `error` (3535 call sites).
 - The most-called R function is `c` (11223 call sites).
-- **681 `goto` statements** survive in the C source — a relic of pre-ANSI C style.
+- **681 `goto` statements** appear in the C source, mostly for error-handling cleanup.
 - **551** C functions follow the `do_*` naming convention, one per `.Internal` entry.
 - There are **8210 named R functions** defined in the base R library source files.
 - The dispatch bridge has **451 entries** connecting R names to C implementations.
