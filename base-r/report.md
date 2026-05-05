@@ -21,63 +21,63 @@
 
 | Function | File | Lines |
 | --- | --- | --- |
-| bcEval_loop | src/main/eval.c | 1197 |
-| do_dotCode | src/main/dotcode.c | 1078 |
-| handle_message | src/extra/graphapp/events.c |  993 |
-| gridSymbol | src/library/grid/src/grid.c |  925 |
-| yyparse | src/main/gram.c |  864 |
-| yyparse | src/library/tools/src/gramRd.c |  851 |
-| dos_wglob | src/gnuwin32/dos_wglob.c |  764 |
-| TRIO_ARGS6 | src/extra/trio/trio.c |  691 |
-| yyparse | src/library/tools/src/gramLatex.c |  651 |
-| deparse2buff | src/main/deparse.c |  651 |
+| bcEval_loop | [src/main/eval.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/main/eval.c) | 1197 |
+| do_dotCode | [src/main/dotcode.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/main/dotcode.c) | 1078 |
+| handle_message | [src/extra/graphapp/events.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/graphapp/events.c) |  993 |
+| gridSymbol | [src/library/grid/src/grid.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/library/grid/src/grid.c) |  925 |
+| yyparse | [src/main/gram.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/main/gram.c) |  864 |
+| yyparse | [src/library/tools/src/gramRd.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/library/tools/src/gramRd.c) |  851 |
+| dos_wglob | [src/gnuwin32/dos_wglob.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/gnuwin32/dos_wglob.c) |  764 |
+| TRIO_ARGS6 | [src/extra/trio/trio.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/trio/trio.c) |  691 |
+| yyparse | [src/library/tools/src/gramLatex.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/library/tools/src/gramLatex.c) |  651 |
+| deparse2buff | [src/main/deparse.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/main/deparse.c) |  651 |
 
 ### Top 10 Largest R Functions
 
 | Function | File | Lines |
 | --- | --- | --- |
-| .check_packages | src/library/tools/R/check.R | 7926 |
-| .install_packages | src/library/tools/R/install.R | 2485 |
-| do_install_source | src/library/tools/R/install.R | 1429 |
-| .check_package_CRAN_incoming | src/library/tools/R/QC.R | 1295 |
-| .build_packages | src/library/tools/R/build.R | 1218 |
-| Rd2HTML | src/library/tools/R/Rd2HTML.R | 1026 |
-| .free1wayML | src/library/stats/R/free1way.R |  834 |
-| install.packages | src/library/utils/R/packages2.R |  832 |
-| Rd2txt | src/library/tools/R/Rd2txt.R |  774 |
-| check_install | src/library/tools/R/check.R |  751 |
+| .check_packages | [src/library/tools/R/check.R](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/library/tools/R/check.R) | 7926 |
+| .install_packages | [src/library/tools/R/install.R](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/library/tools/R/install.R) | 2485 |
+| do_install_source | [src/library/tools/R/install.R](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/library/tools/R/install.R) | 1429 |
+| .check_package_CRAN_incoming | [src/library/tools/R/QC.R](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/library/tools/R/QC.R) | 1295 |
+| .build_packages | [src/library/tools/R/build.R](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/library/tools/R/build.R) | 1218 |
+| Rd2HTML | [src/library/tools/R/Rd2HTML.R](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/library/tools/R/Rd2HTML.R) | 1026 |
+| .free1wayML | [src/library/stats/R/free1way.R](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/library/stats/R/free1way.R) |  834 |
+| install.packages | [src/library/utils/R/packages2.R](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/library/utils/R/packages2.R) |  832 |
+| Rd2txt | [src/library/tools/R/Rd2txt.R](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/library/tools/R/Rd2txt.R) |  774 |
+| check_install | [src/library/tools/R/check.R](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/library/tools/R/check.R) |  751 |
 
 ### Top 10 Largest C Files
 
 | File | Lines |
 | --- | --- |
-| src/library/grDevices/src/devPS.c | 10116 |
-| src/main/eval.c |  9592 |
-| src/extra/trio/trio.c |  7736 |
-| src/modules/X11/rlogo_icon.h |  7644 |
-| src/main/connections.c |  7462 |
-| src/main/gram.c |  6852 |
-| src/library/grid/src/grid.c |  5469 |
-| src/main/memory.c |  5130 |
-| src/main/envir.c |  5081 |
-| src/extra/intl/vasnprintf.c |  4677 |
+| [src/library/grDevices/src/devPS.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/library/grDevices/src/devPS.c) | 10116 |
+| [src/main/eval.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/main/eval.c) |  9592 |
+| [src/extra/trio/trio.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/trio/trio.c) |  7736 |
+| [src/modules/X11/rlogo_icon.h](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/modules/X11/rlogo_icon.h) |  7644 |
+| [src/main/connections.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/main/connections.c) |  7462 |
+| [src/main/gram.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/main/gram.c) |  6852 |
+| [src/library/grid/src/grid.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/library/grid/src/grid.c) |  5469 |
+| [src/main/memory.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/main/memory.c) |  5130 |
+| [src/main/envir.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/main/envir.c) |  5081 |
+| [src/extra/intl/vasnprintf.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/intl/vasnprintf.c) |  4677 |
 
 ## Most-Used Functions
 
-### Top 10 Most-Called C Functions
+### Top 10 Most-Called Internal C Functions
 
 | Function | Call Sites |
 | --- | --- |
-| _ | 4296 |
 | error | 3535 |
-| PROTECT | 3336 |
 | CAR | 2538 |
-| UNPROTECT | 2089 |
-| CDR | 1694 |
-| REAL | 1642 |
 | STRING_ELT | 1598 |
 | allocVector | 1543 |
-| TYPEOF | 1526 |
+| CHAR |  906 |
+| warning |  844 |
+| install |  821 |
+| length |  776 |
+| mkChar |  705 |
+| fprintf |  687 |
 
 ### Top 10 Most-Called R Functions
 
@@ -563,26 +563,26 @@ By convention, every `.Internal` call routes to a C function whose name starts w
 
 | Function | File | Lines |
 | --- | --- | --- |
-| do_AT | src/main/attrib.c | 45 |
-| do_CDotsElt | src/main/envir.c |  7 |
-| do_CDotsLength | src/main/envir.c |  6 |
-| do_CDotsNames | src/main/envir.c |  6 |
-| do_Cstack_info | src/main/platform.c | 22 |
-| do_D2POSIXlt | src/main/datetime.c | 69 |
-| do_External | src/main/dotcode.c | 38 |
-| do_Externalgr | src/main/dotcode.c | 30 |
-| do_ICUget | src/main/util.c | 20 |
-| do_ICUget | src/main/util.c |  5 |
-| do_ICUset | src/main/util.c | 69 |
-| do_ICUset | src/main/util.c |  5 |
-| do_Math2 | src/main/arithmetic.c | 47 |
-| do_POSIXlt2D | src/main/datetime.c | 52 |
-| do_RNGkind | src/main/RNG.c | 26 |
-| do_Rhome | src/main/platform.c |  8 |
-| do_Rprof | src/main/eval.c | 72 |
-| do_Rprof | src/main/eval.c |  5 |
-| do_Rprofmem | src/main/memory.c |  4 |
-| do_Rprofmem | src/main/memory.c | 23 |
+| do_AT | [src/main/attrib.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/main/attrib.c) | 45 |
+| do_CDotsElt | [src/main/envir.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/main/envir.c) |  7 |
+| do_CDotsLength | [src/main/envir.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/main/envir.c) |  6 |
+| do_CDotsNames | [src/main/envir.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/main/envir.c) |  6 |
+| do_Cstack_info | [src/main/platform.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/main/platform.c) | 22 |
+| do_D2POSIXlt | [src/main/datetime.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/main/datetime.c) | 69 |
+| do_External | [src/main/dotcode.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/main/dotcode.c) | 38 |
+| do_Externalgr | [src/main/dotcode.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/main/dotcode.c) | 30 |
+| do_ICUget | [src/main/util.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/main/util.c) | 20 |
+| do_ICUget | [src/main/util.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/main/util.c) |  5 |
+| do_ICUset | [src/main/util.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/main/util.c) | 69 |
+| do_ICUset | [src/main/util.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/main/util.c) |  5 |
+| do_Math2 | [src/main/arithmetic.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/main/arithmetic.c) | 47 |
+| do_POSIXlt2D | [src/main/datetime.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/main/datetime.c) | 52 |
+| do_RNGkind | [src/main/RNG.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/main/RNG.c) | 26 |
+| do_Rhome | [src/main/platform.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/main/platform.c) |  8 |
+| do_Rprof | [src/main/eval.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/main/eval.c) | 72 |
+| do_Rprof | [src/main/eval.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/main/eval.c) |  5 |
+| do_Rprofmem | [src/main/memory.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/main/memory.c) |  4 |
+| do_Rprofmem | [src/main/memory.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/main/memory.c) | 23 |
 
 ## `goto` in the Wild
 
@@ -590,25 +590,25 @@ Despite being considered harmful since 1968, base R's C source contains **681 `g
 
 | File | Gotos |
 | --- | --- |
-| src/library/stats/src/fft.c | 53 |
-| src/library/stats/src/fexact.c | 35 |
-| src/nmath/toms708.c | 34 |
-| src/appl/lbfgsb.c | 28 |
-| src/appl/integrate.c | 26 |
-| src/main/gram.c | 25 |
-| src/library/tools/src/gramRd.c | 24 |
-| src/extra/intl/plural.c | 23 |
-| src/main/sysutils.c | 22 |
-| src/library/tools/src/gramLatex.c | 21 |
+| [src/library/stats/src/fft.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/library/stats/src/fft.c) | 53 |
+| [src/library/stats/src/fexact.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/library/stats/src/fexact.c) | 35 |
+| [src/nmath/toms708.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/nmath/toms708.c) | 34 |
+| [src/appl/lbfgsb.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/appl/lbfgsb.c) | 28 |
+| [src/appl/integrate.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/appl/integrate.c) | 26 |
+| [src/main/gram.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/main/gram.c) | 25 |
+| [src/library/tools/src/gramRd.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/library/tools/src/gramRd.c) | 24 |
+| [src/extra/intl/plural.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/intl/plural.c) | 23 |
+| [src/main/sysutils.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/main/sysutils.c) | 22 |
+| [src/library/tools/src/gramLatex.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/library/tools/src/gramLatex.c) | 21 |
 
-A `goto` from `src/library/stats/src/fft.c`:
+A `goto` from [src/library/stats/src/fft.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/library/stats/src/fft.c):
 ```c
     if( nfac[i-1] != 2) goto L110;
 ```
 
 ## Deepest Nesting
 
-The most deeply nested C function is **`GEText`** in `src/main/engine.c` with a `{}` nesting depth of **12**.
+The most deeply nested C function is **`GEText`** in [src/main/engine.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/main/engine.c) with a `{}` nesting depth of **12**.
 
 ```c
 void GEText(double x, double y, const char * const str, cetype_t enc,
@@ -643,12 +643,296 @@ void GEText(double x, double y, const char * const str, cetype_t enc,
 	    enc2 = (gc->fontface == 5) ? CE_SYMBOL : enc;
 ```
 
+## Old & Odd Comments
+
+There are **787 C comments** that mention a year between 1970 and 2005. The oldest:
+
+| Year | File | Comment |
+| --- | --- | --- |
+| 1970 | [src/gnuwin32/fixed/h/config.h](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/gnuwin32/fixed/h/config.h#L1026) | /* Define if your mktime works correctly before 1970. */ |
+| 1970 | [src/main/Rstrptime.h](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/main/Rstrptime.h#L145) | /* We know that January 1st 1970 was a Thursday (= 4).  Compute the
+       the difference between this data in the one on TM and so determine
+       the weekday.  */ |
+| 1970 | [src/main/datetime.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/main/datetime.c#L108) | /*
+
+There are two implementation paths here.
+Inspectable from R,  sessionInfo()$tzcode_type  is either
+  1) "system (<libc>)"  (with '<libc>' = 'glibc' usually)  or
+  2) "internal"
+
+1) Use the system functions for mktime, gmtime[_r], localtime[_r], strftime.
+   Use the system time_t, struct tm and time-zone tables.
+
+   This can be use on glibc, macOS and Solaris (and probably FreeBSD),
+   but all except 64-bit glibc have issues we can try to work around.
+   It could in principle be used on Windows but the issues there are
+   too severe (no support for before 1970) to work around.
+
+   The system facilities are used for 1902-2037 and outside those
+   limits where there is a 64-bit time_t and the conversions work
+   (some OSes have only 32-bit time-zone tables and macOS 13 only
+   works from 1900).  Otherwise there is code below to extrapolate
+   from 1902-2037.
+
+   Other known issues are with strftime (macOS only supports offsets
+   in multiple of half-hours), not having tzdata tables (possible on
+   Alpine and now fatal when configuring) and odd issues reading the
+   time-zone tables, especially for 1939-1945.
+
+2) USE_INTERNAL_MKTIME : Use substitutes from src/extra/tzone for
+   mktime, gmtime_r, localtime_r, strftime with a R_ prefix.  The
+   system strftime is used for locale-dependent names in R_strptime
+   and R_strftime.  This uses the time-zone tables shipped with R and
+   installed into R_HOME/share/zoneinfo , with facilities to switch to
+   others using environment variable TZDIR.
+
+   Our own versions of time_t (64-bit) and struct tm (including the
+   BSD-style fields tm_zone and tm_gmtoff) are used.
+
+   PATH 2) was added for R 3.1.0 (2014-04), is the only one
+   supported on Windows and is the current default on macOS.
+
+*/ |
+| 1970 | [src/main/datetime.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/main/datetime.c#L197) | // Careful : days_in_year is for base-0 years, days_in_month for base-1970. |
+| 1970 | [src/main/datetime.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/main/datetime.c#L469) | /* a benighted OS with date before 1970 */ |
+| 1970 | [src/main/datetime.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/main/datetime.c#L470) | /* We could not use 1970 because of the Windows bug with
+	   1970-01-01 east of GMT. */ |
+| 1970 | [src/main/datetime.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/main/datetime.c#L644) | // This cannot exceed (2^31-1) years in either direction from 1970 |
+| 1970 | [src/main/datetime.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/main/datetime.c#L666) | /* weekday: 1970-01-01 was a Thursday */ |
+| 1970 | [src/main/datetime.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/main/datetime.c#L1658) | /* weekday: 1970-01-01 was a Thursday */ |
+| 1970 | [src/main/g_her_glyph.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/main/g_her_glyph.c#L5) | /* This file defines the arrays _occidental_hershey_glyphs[] and
+   _oriental_hershey_glyphs[].  The first array includes the standard
+   (`occidental') Hershey glyphs digitized by Dr. Allen V. Hershey, some
+   glyphs due to other people, and his Japanese Hiragana and Katakana
+   glyphs.  The second array includes his digitizations of Japanese
+   ideographic symbols (Kanji glyphs).  It originally included the Hiragana
+   and Katakana glyphs as well, but they were moved to the first array
+   because some people may not wish to include Kanji support.
+
+   Dr. Hershey digitized the glyphs c. 1967, at what is now the U.S. Naval
+   Surface Weapons Center in Dahlgren, Virginia.  For many years he
+   distributed copies of the glyphs, and his typographic software, on
+   magnetic tape.  Over 120 copies of the tape were distributed.  There
+   have been many other distributions of the glyphs.  In the 1970's they
+   were incorporated, not always with attribution, in several commercial
+   plotting packages.  They were first freely distributed in 1985(?), by
+   being posted to Usenet (to vol. 4 of mod.sources) by Pete Holzmann
+   <pete@xc.org>, then at Octopus Enterprises.  In the 1980's the glyphs
+   were incorporated in at least two freeware plotting programs, Nelson
+   Beebe's PLOT79 and Tim Pearson's PGPLOT.  The latter is still available
+   (see http://astro.caltech.edu/~tjp/pgplot/ ).
+
+   The standard hardcopy reference for the occidental Hershey glyphs, which
+   tabulates and displays them, is:
+
+   @TechReport{Wolcott76,
+     author =       {Norman M. Wolcott and Joseph Hilsenrath},
+     title =        {A Contribution to Computer Typesetting Techniques:
+		     Tables of Coordinates for {Hershey's} Repertory of
+		     Occidental Type Fonts and Graphic Symbols},
+     institution =  {U.S. National Bureau of Standards},
+     year =         {1976},
+     month =        {April},
+     type =         {Special Publication},
+     number =       {424},
+     OPTnote =      {US NTIS stock number PB251845}}
+
+   This publication is available from the NTIS (US National Technical
+   Information Service, +1 703 487 4650).  The NTIS stock number is given
+   above.  See also Dr. Hershey's original TR, which describes the
+   alphabets from which the glyphs were taken and gives information on the
+   oriental glyphs:
+
+   @TechReport{Hershey67,
+     author =	 {Allen V. Hershey},
+     title =	 {Calligraphy for Computers},
+     institution =  {U.S. Naval Weapons Laboratory},
+     address =	 {Dahlgren, VA},
+     year =	 {1967},
+     type =	 {Report},
+     number =	 {TR--2101},
+     month =	 {Aug},
+     OPTnote =	 {US NTIS stock number AD662398}}
+
+   Additional references are given in the file ./doc/hershey.bib.
+
+   The _occidental_hershey_glyphs[] array below was constructed from
+   releases of the Hershey glyphs that are later than the one described in
+   the 1976 NBS publication above.  For example, Fig. 15 of that work
+   portrays 43 additional glyphs digitized by Norman Wolcott of the NBS;
+   they are included here.  See the file ./doc/hershey-number for details
+   on how the array was assembled.  The original Hershey glyphs, including
+   the 43 Wolcott glyphs, are stored in the 0..3999 slots of the array.
+
+   The _occidental_hershey_glyphs[] array also includes non-Hershey glyphs
+   taken from various sources.  All post-Hershey glyphs have been placed in
+   slots 4000..4194.  This includes a few glyphs taken from the UGS (the
+   Unified Graphics System, developed by Bob Beach at SLAC; see Computer
+   Graphics, Fall 1974, pp. 22-23).  As well, it includes some freeware
+   glyphs developed by Thomas Wolff <wolff@inf.fu-berlin.de> and
+   distributed as part of the Ghostscript distribution.  The Beach and
+   Wolff glyphs are used in the Hershey Symbol fonts.  Locally developed
+   glyphs (accented characters, in particular) have been added too.
+
+   The Japanese Hiragana and Katakana glyphs digitized by Dr. Hershey,
+   formerly located among the `oriental' glyphs, are now located in slots
+   4195..4399 of the _occidental_hershey_glyphs[] array.
+
+   The format of the glyphs in the _occidental_hershey_glyphs[] and
+   _oriental_hershey_glyphs[] arrays is the format in which the Hershey
+   glyphs were distributed to mod.sources in 1985(?) by Pete Holzmann, and
+   is due to Jim Hurt, then at Cognition Inc.  Glyphs are encoded as
+   strings consisting of pairs of printable ascii characters in the range
+   0x20 to 0x7e, i.e. SP (ascii space) through ~ (ascii tilde).  Each
+   character in the range [0x20,0x7e] encodes an integer.  The integer may
+   be obtained from the character by subtracting 'R', i.e, 0x52.  Integers
+   in the range [-0x32,0x2c], i.e., [-50,44], may be represented in this
+   way.  Actually, all integers appearing in the occidental Hershey glyphs
+   are restricted to the range [-41,41], and those in the oriental glyphs
+   are restricted to the range [-12,13].
+
+   (Note: the non-Hershey pointing hand glyphs in slots 4040..4043 of the
+   _occidental_hershey_glyphs[] array, which are due to Nelson Beebe,
+   include integers drawn from the range [-50,50].  So the four
+   corresponding strings include characters drawn from outside the
+   printable ASCII range, e.g. \204 (i.e. 0x84), which represents 50.)
+
+   The first two characters in each string encode the x range
+   (xinit,xfinal) of a glyph.  (The `width' of the glyph, as distinct from
+   the x extent of its bounding box, is xfinal - xinit.)  Subsequent pairs
+   encode (x1,y1),(x2,y2),(x3,y3),..., i.e., the coordinates of points.
+   The glyph is drawn by moving to (x1,y1), stroking a vector to (x2,y2),
+   stroking a vector to (x3,y3), etc.  The pair (-50,0), which is encoded
+   as the pair of characters " R", if encountered in the string is
+   interpreted as a `pen up' command: the vector immediately following
+   should be drawn with pen up, i.e., should be interpreted as a motion
+   command rather than a drawing command.
+
+   (The pair (-50,0) could conceivably appear in the abovementioned
+   pointing hand glyphs as the coordinates of a vector endpoint, but
+   fortunately it does not.  So Jim Hurt's encoding scheme works, even for
+   the four pointing hands.)  */ |
+
+**20 comments** carry a TODO / FIXME / HACK / XXX marker:
+
+| Tag | File | Comment |
+| --- | --- | --- |
+| BUG | [src/extra/graphapp/internal.h](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/graphapp/internal.h#L32) | /*
+ *  Set DEBUG to 1 to produce object debugging, otherwise zero.
+ */ |
+| BUG | [src/extra/intl/plural.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/intl/plural.c#L903) | /* !YYDEBUG */ |
+| BUG | [src/extra/intl/plural.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/intl/plural.c#L908) | /* !YYDEBUG */ |
+| BUG | [src/extra/tre/tre-ast.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/tre/tre-ast.c#L229) | /* TRE_DEBUG */ |
+| BUG | [src/extra/tre/tre-ast.h](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/tre/tre-ast.h#L124) | /* TRE_DEBUG */ |
+| BUG | [src/extra/tre/tre-compile.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/tre/tre-compile.c#L1765) | /* TRE_DEBUG */ |
+| BUG | [src/extra/tre/tre-compile.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/tre/tre-compile.c#L1933) | /* TRE_DEBUG */ |
+| BUG | [src/extra/tre/tre-compile.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/tre/tre-compile.c#L1959) | /* TRE_DEBUG */ |
+| BUG | [src/extra/tre/tre-compile.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/tre/tre-compile.c#L1994) | /* TRE_DEBUG */ |
+| BUG | [src/extra/tre/tre-compile.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/tre/tre-compile.c#L2019) | /* TRE_DEBUG */ |
+| BUG | [src/extra/tre/tre-compile.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/tre/tre-compile.c#L2133) | /* TRE_DEBUG */ |
+| BUG | [src/extra/tre/tre-internal.h](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/tre/tre-internal.h#L26) | /* !TRE_DEBUG */ |
+| BUG | [src/extra/tre/tre-internal.h](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/tre/tre-internal.h#L28) | /* !TRE_DEBUG */ |
+| BUG | [src/extra/tre/tre-internal.h](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/tre/tre-internal.h#L231) | /* NDEBUG */ |
+| BUG | [src/extra/tre/tre-match-approx.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/tre/tre-match-approx.c#L126) | /* TRE_DEBUG */ |
+| BUG | [src/extra/tre/tre-match-approx.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/tre/tre-match-approx.c#L662) | /* TRE_DEBUG */ |
+| BUG | [src/extra/tre/tre-match-backtrack.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/tre/tre-match-backtrack.c#L412) | /* TRE_DEBUG */ |
+| BUG | [src/extra/tre/tre-match-parallel.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/tre/tre-match-parallel.c#L105) | /* TRE_DEBUG */ |
+| BUG | [src/extra/tre/tre-match-parallel.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/tre/tre-match-parallel.c#L351) | /* TRE_DEBUG */ |
+| BUG | [src/extra/tre/tre-mem.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/tre/tre-mem.c#L88) | /* MALLOC_DEBUGGING */ |
+
+## Funny & Colorful Comments
+
+Comments containing strong opinions, exclamations, or evocative adjectives (C and R combined):
+
+| Comment | File | Lang |
+| --- | --- | --- |
+| /* accept new point? */ | [src/appl/optim.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/appl/optim.c#L768) | C |
+| // subnormals underflowing to zero (not yet seen!) | [src/appl/pretty.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/appl/pretty.c#L142) | C |
+| /*	We don't do this because the printRealMatrix
+	code takes a SEXP rather than a double*.
+	We could do something ugly like use fixed e format
+	but that would be UGLY!
+     */ | [src/appl/uncmin.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/appl/uncmin.c#L2129) | C |
+| /* Correct format already! */ | [src/extra/graphapp/bitmaps.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/graphapp/bitmaps.c#L342) | C |
+| /* Correct format already! */ | [src/extra/graphapp/bitmaps.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/graphapp/bitmaps.c#L377) | C |
+| /* Why was this previously commented out? CJ */ | [src/extra/graphapp/buttons.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/graphapp/buttons.c#L832) | C |
+| /* Has a colour or width change occured? */ | [src/extra/graphapp/context.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/graphapp/context.c#L376) | C |
+| /* don't believe current sizes!
+	       dw = r.width - obj->rect.width;
+	       dh = r.height - obj->rect.height;
+	       Rprintf("dw %d dh %d\n", dw, dh); */ | [src/extra/graphapp/controls.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/graphapp/controls.c#L257) | C |
+| /* if (obj->refcount == 1)   why would this test be here?? */ | [src/extra/graphapp/controls.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/graphapp/controls.c#L948) | C |
+| /* FIXME: is the copy needed? */ | [src/extra/graphapp/dialogs.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/graphapp/dialogs.c#L518) | C |
+| /* typewriter ping! */ | [src/extra/graphapp/drawtext.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/graphapp/drawtext.c#L378) | C |
+| /* Nowhere to send events! */ | [src/extra/graphapp/events.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/graphapp/events.c#L1066) | C |
+| /* Nowhere to send events! */ | [src/extra/graphapp/events.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/graphapp/events.c#L1199) | C |
+| /* Claim that this was wrong:
+       http://blogs.msdn.com/oldnewthing/archive/2005/07/07/436435.aspx
+
+       SystemFont = new_font_object(GetStockObject(DEFAULT_GUI_FONT));
+    */ | [src/extra/graphapp/fonts.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/graphapp/fonts.c#L126) | C |
+| /* We should never get here, but we do? */ | [src/extra/graphapp/gdraw.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/graphapp/gdraw.c#L49) | C |
+| /* note: next is unused! */ | [src/extra/graphapp/gdraw.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/graphapp/gdraw.c#L143) | C |
+| /* what kind of object is it? */ | [src/extra/graphapp/internal.h](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/graphapp/internal.h#L197) | C |
+| /* at end of list, success! */ | [src/extra/graphapp/menus.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/graphapp/menus.c#L214) | C |
+| /* Must call private destructor first! */ | [src/extra/graphapp/objects.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/graphapp/objects.c#L606) | C |
+| /* FIXME: can PrintDlg change the current directory? */ | [src/extra/graphapp/printer.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/graphapp/printer.c#L70) | C |
+| /* FIXME: use PrintDlgEx? */ | [src/extra/graphapp/printer.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/graphapp/printer.c#L103) | C |
+| /* Return transparent if the color doesn't exist.
+ *  Case insensitive comparison?
+*/ | [src/extra/graphapp/rgb.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/graphapp/rgb.c#L1361) | C |
+| /* Forced termination - no user interference! */ | [src/extra/graphapp/windows.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/graphapp/windows.c#L381) | C |
+| /* We found it!  */ | [src/extra/intl/bindtextdom.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/intl/bindtextdom.c#L101) | C |
+| /* Bogus.  */ | [src/extra/intl/dcigettext.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/intl/dcigettext.c#L532) | C |
+
+## Interesting Function Names
+
+### Longest C Function Names
+
+| Function | File | Name Length |
+| --- | --- | --- |
+| unz64local_CheckCurrentFileCoherencyHeader | [src/main/dounzip.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/main/dounzip.c) | 42 |
+| unz64local_GetCurrentFileInfoInternal | [src/main/dounzip.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/main/dounzip.c) | 37 |
+| process_arch_specific_user_Renviron | [src/main/Renviron.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/main/Renviron.c) | 35 |
+| R_makePartialMatchWarningCondition | [src/main/errors.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/main/errors.c) | 34 |
+| R_getExpressionStackOverflowError | [src/main/errors.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/main/errors.c) | 33 |
+| fails_iteratively_when_incomplete | [src/main/sysutils.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/main/sysutils.c) | 33 |
+| blendModeFromCompositingOperator | [src/library/grDevices/src/devPS.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/library/grDevices/src/devPS.c) | 32 |
+| fillViewportLocationFromViewport | [src/library/grid/src/viewport.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/library/grid/src/viewport.c) | 32 |
+| compact_realseq_Serialized_state | [src/main/altclasses.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/main/altclasses.c) | 32 |
+| deferred_string_Serialized_state | [src/main/altclasses.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/main/altclasses.c) | 32 |
+| invalid_parameter_handler_watson | [src/main/main.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/main/main.c) | 32 |
+| findFunWithBaseEnvAfterGlobalEnv | [src/main/objects.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/main/objects.c) | 32 |
+| glthread_recursive_lock_destroy | [src/extra/intl/lock.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/intl/lock.c) | 31 |
+| glthread_recursive_lock_destroy | [src/extra/intl/lock.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/intl/lock.c) | 31 |
+| glthread_recursive_lock_destroy | [src/extra/intl/lock.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/intl/lock.c) | 31 |
+
+### Longest R Function Names
+
+| Function | File | Name Length |
+| --- | --- | --- |
+| .format_check_package_description_authors_at_R_field_results | [src/library/tools/R/QC.R](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/library/tools/R/QC.R) | 60 |
+| aspell_filter_LaTeX_commands_from_Aspell_tex_filter_info | [src/library/utils/R/aspell.R](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/library/utils/R/aspell.R) | 56 |
+| format.check_S3_methods_needing_delayed_registration | [src/library/tools/R/QC.R](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/library/tools/R/QC.R) | 52 |
+| .format_authors_at_R_field_with_expanded_identifiers | [src/library/tools/R/Rd2HTML.R](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/library/tools/R/Rd2HTML.R) | 52 |
+| summarize_CRAN_check_status_according_to_maintainer | [src/library/tools/R/CRANtools.R](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/library/tools/R/CRANtools.R) | 51 |
+| format.CRAN_package_reverse_dependencies_and_views | [src/library/tools/R/CRANtools.R](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/library/tools/R/CRANtools.R) | 50 |
+| CRAN_package_reverse_dependencies_with_maintainers | [src/library/tools/R/CRANtools.R](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/library/tools/R/CRANtools.R) | 50 |
+| format_native_routine_registration_db_for_skeleton | [src/library/tools/R/sotools.R](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/library/tools/R/sotools.R) | 50 |
+| print.CRAN_package_reverse_dependencies_and_views | [src/library/tools/R/CRANtools.R](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/library/tools/R/CRANtools.R) | 49 |
+| .check_package_urls_relative_paths_from_vignettes | [src/library/tools/R/urltools.R](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/library/tools/R/urltools.R) | 49 |
+| .check_S3_methods_needing_delayed_registration | [src/library/tools/R/QC.R](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/library/tools/R/QC.R) | 46 |
+| native_routine_registration_db_from_ff_call_db | [src/library/tools/R/sotools.R](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/library/tools/R/sotools.R) | 46 |
+| .authors_at_R_field_from_author_and_maintainer | [src/library/utils/R/citation.R](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/library/utils/R/citation.R) | 46 |
+| .check_package_description_authors_at_R_field | [src/library/tools/R/QC.R](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/library/tools/R/QC.R) | 45 |
+| format.check_package_code_assign_to_globalenv | [src/library/tools/R/QC.R](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/library/tools/R/QC.R) | 45 |
+
 ## Cool Facts
 
 - R's C implementation defines **8137 functions** across 686 files — far more than most users imagine.
 - The biggest single C function, `bcEval_loop`, spans **1197 lines** of C.
 - The biggest single R function, `.check_packages`, spans **7926 lines** of R.
-- The most-called C function is `_` (4296 call sites).
+- The most-called internal C function is `error` (3535 call sites).
 - The most-called R function is `c` (11223 call sites).
 - **681 `goto` statements** survive in the C source — a relic of pre-ANSI C style.
 - **551** C functions follow the `do_*` naming convention, one per `.Internal` entry.

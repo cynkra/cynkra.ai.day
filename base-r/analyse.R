@@ -28,6 +28,14 @@ if (!dir_exists("r-source")) {
   message("r-source/ already present, skipping clone.")
 }
 
+sha <- system2("git", c("-C", "r-source", "rev-parse", "HEAD"),
+               stdout = TRUE, stderr = FALSE)
+gh_link <- function(file, line = NULL) {
+  url <- paste0("https://github.com/wch/r-source/blob/", sha, "/", file)
+  if (!is.null(line)) url <- ifelse(is.na(line), url, paste0(url, "#L", line))
+  paste0("[", file, "](", url, ")")
+}
+
 # ── 2. Helpers ────────────────────────────────────────────────────────────────
 
 c_lang   <- treesitter.c::language()
@@ -98,13 +106,15 @@ c_files <- dir_ls("r-source/src", recurse = TRUE,
                   regexp = "\\.(c|h)$", type = "file")
 message(sprintf("  %d C/H files", length(c_files)))
 
-q_c_fn   <- query(c_lang, "(function_definition declarator: (function_declarator declarator: (identifier) @name)) @fn")
-q_c_call <- query(c_lang, "(call_expression function: (identifier) @name)")
-q_c_goto <- query(c_lang, "(goto_statement) @goto")
+q_c_fn      <- query(c_lang, "(function_definition declarator: (function_declarator declarator: (identifier) @name)) @fn")
+q_c_call    <- query(c_lang, "(call_expression function: (identifier) @name)")
+q_c_goto    <- query(c_lang, "(goto_statement) @goto")
+q_c_comment <- query(c_lang, "(comment) @comment")
 
 c_fns        <- list()
 c_calls_all  <- character(0)
 c_goto_files <- list()
+c_comments   <- list()
 
 message("Parsing C files ...")
 for (path in c_files) {
@@ -112,7 +122,6 @@ for (path in c_files) {
   if (is.null(parsed)) next
   root <- tree_root_node(parsed$tree)
 
-  # Function definitions
   caps     <- query_captures(q_c_fn, root)
   fn_nodes <- caps$node[caps$name == "fn"]
   fn_names <- vapply(caps$node[caps$name == "name"], node_text, character(1L))
@@ -126,12 +135,10 @@ for (path in c_files) {
     )
   }
 
-  # Call sites
   call_caps   <- query_captures(q_c_call, root)
   c_calls_all <- c(c_calls_all,
                    vapply(call_caps$node, node_text, character(1L)))
 
-  # goto statements
   goto_caps <- query_captures(q_c_goto, root)
   n_goto    <- length(goto_caps$node)
   if (n_goto > 0L) {
@@ -142,22 +149,28 @@ for (path in c_files) {
       text  = parsed$text
     )
   }
+
+  com_caps <- query_captures(q_c_comment, root)
+  for (cn in com_caps$node) {
+    c_comments[[length(c_comments) + 1L]] <- list(
+      text = node_text(cn),
+      path = parsed$path,
+      line = point_row(node_start_point(cn)) + 1L
+    )
+  }
 }
 
 message(sprintf("  %d C functions found", length(c_fns)))
 
-# Derived tables
 c_fns_df <- tibble(
   name  = vapply(c_fns, `[[`, character(1L), "name"),
   path  = vapply(c_fns, `[[`, character(1L), "path"),
   lines = vapply(c_fns, `[[`, integer(1L),   "lines")
 ) |> mutate(file = path_rel(path, "r-source"))
 
-# Task 3.3 — top-10 largest C functions
 top10_c_fns <- slice_max(c_fns_df, lines, n = 10L, with_ties = FALSE) |>
   select(Function = name, File = file, Lines = lines)
 
-# Task 3.4 — top-10 largest C files
 top10_c_files <- tibble(path = c_files) |>
   mutate(
     lines = vapply(path, function(p) {
@@ -170,7 +183,6 @@ top10_c_files <- tibble(path = c_files) |>
   slice_max(lines, n = 10L, with_ties = FALSE) |>
   select(File, Lines = lines)
 
-# Task 3.5 — goto
 total_gotos <- sum(vapply(c_goto_files, `[[`, integer(1L), "count"))
 top_goto <- tibble(
   File  = path_rel(vapply(c_goto_files, `[[`, character(1L), "path"), "r-source"),
@@ -181,10 +193,8 @@ best_goto_idx  <- which.max(vapply(c_goto_files, `[[`, integer(1L), "count"))
 goto_snip_info <- c_goto_files[[best_goto_idx]]
 goto_snip      <- extract_snippet(goto_snip_info$text, goto_snip_info$node)
 
-# Task 3.6 — do_* functions
 do_fns <- filter(c_fns_df, grepl("^do_", name)) |> arrange(name)
 
-# Task 3.7 — deepest nesting
 message("Computing nesting depths ...")
 deepest <- list(depth = 0L, name = "", path = "", node = NULL, text = "")
 for (fd in c_fns) {
@@ -195,8 +205,41 @@ for (fd in c_fns) {
 }
 deep_snip <- extract_snippet(deepest$text, deepest$node, max_lines = 30L)
 
-# Task 3.8 — most-called C functions
-top10_c_calls <- sort(table(c_calls_all), decreasing = TRUE) |>
+message("Analysing comments ...")
+comment_texts <- vapply(c_comments, `[[`, character(1L), "text")
+comment_paths <- vapply(c_comments, `[[`, character(1L), "path")
+comment_lines <- vapply(c_comments, function(x) as.integer(x$line), integer(1L))
+
+has_year <- lengths(regmatches(comment_texts,
+                               gregexpr("\\b(19[7-9][0-9]|200[0-5])\\b",
+                                        comment_texts))) > 0L
+old_comments_df <- tibble(
+  text = comment_texts[has_year],
+  path = comment_paths[has_year],
+  line = comment_lines[has_year],
+  year = as.integer(regmatches(
+    comment_texts[has_year],
+    regexpr("\\b(19[7-9][0-9]|200[0-5])\\b", comment_texts[has_year])
+  ))
+) |>
+  arrange(year) |>
+  mutate(File = path_rel(path, "r-source"), Comment = trimws(text))
+
+flag_pattern <- "TODO|FIXME|HACK|XXX|BUG|KLUDGE"
+flagged_idx  <- grepl(flag_pattern, comment_texts, ignore.case = TRUE)
+flagged_df   <- tibble(
+  Comment = trimws(comment_texts[flagged_idx]),
+  File    = path_rel(comment_paths[flagged_idx], "r-source"),
+  Line    = comment_lines[flagged_idx]
+) |>
+  mutate(Tag = regmatches(Comment,
+                          regexpr(flag_pattern, Comment, ignore.case = TRUE))) |>
+  arrange(Tag, File) |>
+  head(20L)
+
+defined_c_fns <- unique(c_fns_df$name)
+top10_c_calls <- sort(table(c_calls_all[c_calls_all %in% defined_c_fns]),
+                      decreasing = TRUE) |>
   head(10L) |>
   as.data.frame(stringsAsFactors = FALSE) |>
   setNames(c("Function", "Call Sites")) |>
@@ -212,11 +255,13 @@ q_r_fn        <- query(r_lang, "(binary_operator lhs: (identifier) @name rhs: (f
 q_r_call      <- query(r_lang, "(call function: (identifier) @name)")
 q_r_internal  <- query(r_lang, '(call function: (identifier) @fn (#eq? @fn ".Internal")) @call')
 q_r_primitive <- query(r_lang, '(call function: (identifier) @fn (#eq? @fn ".Primitive")) @call')
+q_r_comment   <- query(r_lang, "(comment) @comment")
 
 r_fns        <- list()
 r_calls_all  <- character(0)
 r_internals  <- character(0)
 r_primitives <- character(0)
+r_comments   <- list()
 
 message("Parsing R files ...")
 for (path in r_files) {
@@ -224,7 +269,6 @@ for (path in r_files) {
   if (is.null(parsed)) next
   root <- tree_root_node(parsed$tree)
 
-  # Task 4.2 — named function definitions
   caps     <- query_captures(q_r_fn, root)
   fn_nodes <- caps$node[caps$name == "fn"]
   fn_names <- vapply(caps$node[caps$name == "name"], node_text, character(1L))
@@ -236,12 +280,10 @@ for (path in r_files) {
     )
   }
 
-  # Task 4.5 — call frequency
   call_caps   <- query_captures(q_r_call, root)
   r_calls_all <- c(r_calls_all,
                    vapply(call_caps$node, node_text, character(1L)))
 
-  # Task 4.4 — .Internal calls (extract inner function name via regex)
   int_caps <- query_captures(q_r_internal, root)
   for (cn in int_caps$node[int_caps$name == "call"]) {
     txt <- node_text(cn)
@@ -250,13 +292,21 @@ for (path in r_files) {
       r_internals <- c(r_internals, sub("\\.Internal\\(", "", m))
   }
 
-  # Task 4.4 — .Primitive calls (argument is a quoted string)
   prim_caps <- query_captures(q_r_primitive, root)
   for (cn in prim_caps$node[prim_caps$name == "call"]) {
     txt <- node_text(cn)
     m <- regmatches(txt, regexpr('"([^"]+)"', txt))
     if (length(m) > 0L)
       r_primitives <- c(r_primitives, gsub('"', '', m))
+  }
+
+  com_caps <- query_captures(q_r_comment, root)
+  for (cn in com_caps$node) {
+    r_comments[[length(r_comments) + 1L]] <- list(
+      text = node_text(cn),
+      path = parsed$path,
+      line = point_row(node_start_point(cn)) + 1L
+    )
   }
 }
 
@@ -268,32 +318,74 @@ r_fns_df <- tibble(
   lines = vapply(r_fns, `[[`, integer(1L),   "lines")
 ) |> mutate(file = path_rel(path, "r-source"))
 
-# Task 4.3 — top-10 largest R functions
 top10_r_fns <- slice_max(r_fns_df, lines, n = 10L, with_ties = FALSE) |>
   select(Function = name, File = file, Lines = lines)
 
-# Task 4.5 — most-called R functions
 top10_r_calls <- sort(table(r_calls_all), decreasing = TRUE) |>
   head(10L) |>
   as.data.frame(stringsAsFactors = FALSE) |>
   setNames(c("Function", "Call Sites")) |>
   mutate(`Call Sites` = as.integer(`Call Sites`))
 
-# Task 4.4 — dispatch table
 dispatch_df <- bind_rows(
   tibble(Name = unique(r_internals), Type = ".Internal"),
   tibble(Name = unique(r_primitives), Type = ".Primitive")
 ) |> arrange(Type, Name)
 
-# ── 5. Overview numbers ───────────────────────────────────────────────────────
+# ── 5. Funny comments & interesting names ────────────────────────────────────
 
-n_c_files   <- length(c_files)
-n_r_files   <- length(r_files)
-n_c_fns     <- nrow(c_fns_df)
-n_r_fns     <- nrow(r_fns_df)
-n_internals <- length(unique(r_internals))
+message("Mining funny comments and names ...")
+
+funny_pat <- paste0(
+  "\\b(evil|ugly|horrible|wrong|broken|hack|magic|weird|strange|awful|",
+  "terrible|insane|crazy|stupid|dumb|silly|nonsense|bizarre|absurd|",
+  "ridiculous|pathetic|oops|yikes|sigh|argh|ugh|damn|crap|mess|disaster|",
+  "unfortunate|suspicious|nasty|filthy|gross|obscure|mysterious|bogus|",
+  "dubious|treacherous|monstrous|baffling|puzzling|confusing|annoying|",
+  "painful|frustrating|surprising|shocking|unbelievable|incredible)\\b"
+)
+
+all_comments <- c(
+  lapply(c_comments, function(x) c(x, lang = "C")),
+  lapply(r_comments, function(x) c(x, lang = "R"))
+)
+all_texts <- vapply(all_comments, `[[`, character(1L), "text")
+all_paths <- vapply(all_comments, `[[`, character(1L), "path")
+all_lines <- vapply(all_comments, function(x) as.integer(x$line), integer(1L))
+all_langs <- vapply(all_comments, `[[`, character(1L), "lang")
+
+funny_idx <- grepl(funny_pat, all_texts, ignore.case = TRUE) |
+             grepl("[[:alpha:]]!", all_texts) |
+             grepl("[[:alpha:]]\\?", all_texts)
+funny_df <- tibble(
+  Comment = trimws(all_texts[funny_idx]),
+  File    = path_rel(all_paths[funny_idx], "r-source"),
+  Line    = all_lines[funny_idx],
+  Lang    = all_langs[funny_idx]
+) |>
+  filter(nchar(Comment) <= 200) |>
+  arrange(Lang, File) |>
+  head(25L)
+
+long_c_names <- c_fns_df |>
+  mutate(nchar = nchar(name)) |>
+  slice_max(nchar, n = 15L, with_ties = FALSE) |>
+  select(Function = name, File = file, `Name Length` = nchar)
+
+long_r_names <- r_fns_df |>
+  mutate(nchar = nchar(name)) |>
+  slice_max(nchar, n = 15L, with_ties = FALSE) |>
+  select(Function = name, File = file, `Name Length` = nchar)
+
+# ── 6. Overview numbers ───────────────────────────────────────────────────────
+
+n_c_files    <- length(c_files)
+n_r_files    <- length(r_files)
+n_c_fns      <- nrow(c_fns_df)
+n_r_fns      <- nrow(r_fns_df)
+n_internals  <- length(unique(r_internals))
 n_primitives <- length(unique(r_primitives))
-n_do_fns    <- nrow(do_fns)
+n_do_fns     <- nrow(do_fns)
 
 # ── 6. Write report.md ────────────────────────────────────────────────────────
 
@@ -305,7 +397,6 @@ report <- c(
   "> Generated by `analyse.R` from a depth-1 clone of [wch/r-source](https://github.com/wch/r-source).",
   "",
 
-  ## Overview
   "## Overview",
   "",
   md_table(tibble(
@@ -324,26 +415,24 @@ report <- c(
   )),
   "",
 
-  ## Biggest functions
   "## Biggest Functions",
   "",
   "### Top 10 Largest C Functions",
   "",
-  md_table(top10_c_fns),
+  md_table(mutate(top10_c_fns, File = gh_link(File))),
   "",
   "### Top 10 Largest R Functions",
   "",
-  md_table(top10_r_fns),
+  md_table(mutate(top10_r_fns, File = gh_link(File))),
   "",
   "### Top 10 Largest C Files",
   "",
-  md_table(top10_c_files),
+  md_table(mutate(top10_c_files, File = gh_link(File))),
   "",
 
-  ## Most-used functions
   "## Most-Used Functions",
   "",
-  "### Top 10 Most-Called C Functions",
+  "### Top 10 Most-Called Internal C Functions",
   "",
   md_table(top10_c_calls),
   "",
@@ -352,7 +441,6 @@ report <- c(
   md_table(top10_r_calls),
   "",
 
-  ## .Internal / .Primitive
   "## The `.Internal` / `.Primitive` Dispatch System",
   "",
   paste0(
@@ -370,7 +458,6 @@ report <- c(
   md_table(dispatch_df),
   "",
 
-  ## do_* functions
   "## C Dispatch Layer: `do_*` Functions",
   "",
   glue(
@@ -380,11 +467,11 @@ report <- c(
   "",
   md_table(
     do_fns |> head(20L) |>
-      select(Function = name, File = file, Lines = lines)
+      select(Function = name, File = file, Lines = lines) |>
+      mutate(File = gh_link(File))
   ),
   "",
 
-  ## goto
   "## `goto` in the Wild",
   "",
   glue(
@@ -392,20 +479,19 @@ report <- c(
     "**{total_gotos} `goto` statements**. Top offending files:"
   ),
   "",
-  md_table(top_goto),
+  md_table(mutate(top_goto, File = gh_link(File))),
   "",
-  glue("A `goto` from `{path_rel(goto_snip_info$path, 'r-source')}`:\n"),
+  glue("A `goto` from {gh_link(path_rel(goto_snip_info$path, 'r-source'))}:\n"),
   "```c",
   goto_snip,
   "```",
   "",
 
-  ## Deepest nesting
   "## Deepest Nesting",
   "",
   glue(
     "The most deeply nested C function is **`{deepest$name}`** ",
-    "in `{path_rel(deepest$path, 'r-source')}` ",
+    "in {gh_link(path_rel(deepest$path, 'r-source'))} ",
     "with a `{{}}` nesting depth of **{deepest$depth}**."
   ),
   "",
@@ -414,13 +500,43 @@ report <- c(
   "```",
   "",
 
-  ## Cool facts
+  "## Old & Odd Comments",
+  "",
+  glue("There are **{nrow(old_comments_df)} C comments** that mention a year between 1970 and 2005. The oldest:"),
+  "",
+  md_table(head(old_comments_df, 10L) |>
+    mutate(File = gh_link(File, line)) |>
+    select(Year = year, File, Comment)),
+  "",
+  glue("**{nrow(flagged_df)} comments** carry a TODO / FIXME / HACK / XXX marker:"),
+  "",
+  md_table(flagged_df |> mutate(File = gh_link(File, Line)) |> select(Tag, File, Comment)),
+  "",
+
+  "## Funny & Colorful Comments",
+  "",
+  "Comments containing strong opinions, exclamations, or evocative adjectives (C and R combined):",
+  "",
+  md_table(funny_df |> mutate(File = gh_link(File, Line)) |> select(Comment, File, Lang)),
+  "",
+
+  "## Interesting Function Names",
+  "",
+  "### Longest C Function Names",
+  "",
+  md_table(mutate(long_c_names, File = gh_link(File))),
+  "",
+  "### Longest R Function Names",
+  "",
+  md_table(mutate(long_r_names, File = gh_link(File))),
+  "",
+
   "## Cool Facts",
   "",
   glue("- R's C implementation defines **{n_c_fns} functions** across {n_c_files} files — far more than most users imagine."),
   glue("- The biggest single C function, `{top10_c_fns$Function[1]}`, spans **{top10_c_fns$Lines[1]} lines** of C."),
   glue("- The biggest single R function, `{top10_r_fns$Function[1]}`, spans **{top10_r_fns$Lines[1]} lines** of R."),
-  glue("- The most-called C function is `{top10_c_calls$Function[1]}` ({top10_c_calls[['Call Sites']][1]} call sites)."),
+  glue("- The most-called internal C function is `{top10_c_calls$Function[1]}` ({top10_c_calls[['Call Sites']][1]} call sites)."),
   glue("- The most-called R function is `{top10_r_calls$Function[1]}` ({top10_r_calls[['Call Sites']][1]} call sites)."),
   glue("- **{total_gotos} `goto` statements** survive in the C source — a relic of pre-ANSI C style."),
   glue("- **{n_do_fns}** C functions follow the `do_*` naming convention, one per `.Internal` entry."),
