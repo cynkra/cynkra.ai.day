@@ -22,6 +22,9 @@ function fetchOooEvents_(windowStart, windowEnd) {
 
   var events = [];
   items.forEach(function(item) {
+    console.log('Event: "%s" | eventType: %s | start.date: %s | start.dateTime: %s',
+      item.summary, item.eventType, item.start && item.start.date, item.start && item.start.dateTime);
+
     // Filter: outOfOffice event type only.
     if (item.eventType !== 'outOfOffice') return;
     // Filter: all-day only (start.date present, not start.dateTime).
