@@ -6,12 +6,12 @@
   "main": "./dist/index.js",
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "dev": "tsx watch src/index.ts",
+    "dev": "tsx watch --env-file-if-exists=.env.local src/index.ts",
     "start": "node dist/index.js",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "tsx --test src/**/*.test.ts",
-    "migrate:up": "node-pg-migrate -d DATABASE_URL -m migrations -j ts up",
-    "migrate:down": "node-pg-migrate -d DATABASE_URL -m migrations -j ts down",
+    "migrate:up": "node --env-file-if-exists=.env.local node_modules/.bin/node-pg-migrate -d DATABASE_URL -m migrations -j ts up",
+    "migrate:down": "node --env-file-if-exists=.env.local node_modules/.bin/node-pg-migrate -d DATABASE_URL -m migrations -j ts down",
     "migrate:create": "node-pg-migrate -m migrations -j ts create"
   },
   "dependencies": {
