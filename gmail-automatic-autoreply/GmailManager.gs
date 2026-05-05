@@ -84,16 +84,24 @@ function disableAutoreply() {
 // ---------------------------------------------------------------------------
 
 /**
- * Substitutes {return_date} in AUTOREPLY_MESSAGE_TEMPLATE with the last OOO day
- * formatted as a human-readable date (e.g. "May 22, 2026").
+ * Substitutes {available_date} in AUTOREPLY_MESSAGE_TEMPLATE with the first
+ * working day after the last OOO day (skips Saturday and Sunday).
+ * e.g. last OOO day = Friday → available_date = Monday.
  */
 function buildMessage_(lastOooDay) {
-  var formatted = Utilities.formatDate(
-    lastOooDay,
-    Session.getScriptTimeZone(),
-    'MMMM d, yyyy'
-  );
-  return AUTOREPLY_MESSAGE_TEMPLATE.replace('{return_date}', formatted);
+  var available = nextWorkingDay_(lastOooDay);
+  var formatted = Utilities.formatDate(available, Session.getScriptTimeZone(), 'MMMM d, yyyy');
+  return AUTOREPLY_MESSAGE_TEMPLATE.replace(/\{available_date\}/g, formatted);
+}
+
+/** Returns the first working day (Mon–Fri) strictly after the given date. */
+function nextWorkingDay_(date) {
+  var d = new Date(date);
+  d.setDate(d.getDate() + 1);
+  var day = d.getDay();
+  if (day === 6) d.setDate(d.getDate() + 2); // Saturday → Monday
+  if (day === 0) d.setDate(d.getDate() + 1); // Sunday → Monday
+  return d;
 }
 
 /** Returns a Date set to 00:00:00.000 on the given day (local time). */
