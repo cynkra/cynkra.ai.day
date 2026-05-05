@@ -94,6 +94,28 @@
 | paste |  2073 |
 | is.na |  1755 |
 
+## Most Arguments
+
+The R functions with the highest number of formal parameters:
+
+| Function | File | Args |
+| --- | --- | --- |
+| legend | [src/library/graphics/R/legend.R](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/library/graphics/R/legend.R) | 81 |
+| barplot.default | [src/library/graphics/R/barplot.R](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/library/graphics/R/barplot.R) | 67 |
+| stars | [src/library/graphics/R/stars.R](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/library/graphics/R/stars.R) | 65 |
+| plotts | [src/library/stats/R/ts.R](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/library/stats/R/ts.R) | 63 |
+| termplot | [src/library/stats/R/termplot.R](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/library/stats/R/termplot.R) | 55 |
+| persp.default | [src/library/graphics/R/persp.R](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/library/graphics/R/persp.R) | 53 |
+| read.table | [src/library/utils/R/readtable.R](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/library/utils/R/readtable.R) | 51 |
+| heatmap | [src/library/stats/R/dendrogram.R](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/library/stats/R/dendrogram.R) | 47 |
+| plot.lm | [src/library/stats/R/plot.lm.R](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/library/stats/R/plot.lm.R) | 46 |
+| hist.default | [src/library/graphics/R/hist.R](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/library/graphics/R/hist.R) | 45 |
+| scan | [src/library/base/R/scan.R](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/library/base/R/scan.R) | 43 |
+| pdf | [src/library/grDevices/R/postscript.R](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/library/grDevices/R/postscript.R) | 43 |
+| dotchart | [src/library/graphics/R/dotchart.R](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/library/graphics/R/dotchart.R) | 43 |
+| filled.contour | [src/library/graphics/R/filled.contour.R](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/library/graphics/R/filled.contour.R) | 43 |
+| stripchart.default | [src/library/graphics/R/stripchart.R](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/library/graphics/R/stripchart.R) | 41 |
+
 ## The `.Internal` / `.Primitive` Dispatch System
 
 When you call a base R function like `nchar()` or `sum()`, R often dispatches immediately into C. Two mechanisms handle this:
@@ -1011,4 +1033,5 @@ c4795d12b9 revert r88616 for now
 - **551** C functions follow the `do_*` naming convention, one per `.Internal` entry.
 - There are **8210 named R functions** defined in the base R library source files.
 - The dispatch bridge has **451 entries** connecting R names to C implementations.
+- The R function with the most arguments is `legend` with 81 parameters.
 

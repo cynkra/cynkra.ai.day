@@ -287,7 +287,7 @@ message("Walking R files ...")
 r_files <- dir_ls("r-source", recurse = TRUE, regexp = "\\.R$", type = "file")
 message(sprintf("  %d R files", length(r_files)))
 
-q_r_fn        <- query(r_lang, "(binary_operator lhs: (identifier) @name rhs: (function_definition) @fn)")
+q_r_fn        <- query(r_lang, "(binary_operator lhs: (identifier) @name rhs: (function_definition parameters: (parameters) @params) @fn)")
 q_r_call      <- query(r_lang, "(call function: (identifier) @name)")
 q_r_internal  <- query(r_lang, '(call function: (identifier) @fn (#eq? @fn ".Internal")) @call')
 q_r_primitive <- query(r_lang, '(call function: (identifier) @fn (#eq? @fn ".Primitive")) @call')
@@ -305,14 +305,16 @@ for (path in r_files) {
   if (is.null(parsed)) next
   root <- tree_root_node(parsed$tree)
 
-  caps     <- query_captures(q_r_fn, root)
-  fn_nodes <- caps$node[caps$name == "fn"]
-  fn_names <- vapply(caps$node[caps$name == "name"], node_text, character(1L))
+  caps         <- query_captures(q_r_fn, root)
+  fn_nodes     <- caps$node[caps$name == "fn"]
+  fn_names     <- vapply(caps$node[caps$name == "name"], node_text, character(1L))
+  params_nodes <- caps$node[caps$name == "params"]
   for (i in seq_along(fn_nodes)) {
     r_fns[[length(r_fns) + 1L]] <- list(
       name  = fn_names[[i]],
       path  = parsed$path,
-      lines = node_lines(fn_nodes[[i]])
+      lines = node_lines(fn_nodes[[i]]),
+      args  = as.integer(node_named_child_count(params_nodes[[i]]))
     )
   }
 
@@ -351,11 +353,15 @@ message(sprintf("  %d R functions found", length(r_fns)))
 r_fns_df <- tibble(
   name  = vapply(r_fns, `[[`, character(1L), "name"),
   path  = vapply(r_fns, `[[`, character(1L), "path"),
-  lines = vapply(r_fns, `[[`, integer(1L),   "lines")
+  lines = vapply(r_fns, `[[`, integer(1L),   "lines"),
+  args  = vapply(r_fns, `[[`, integer(1L),   "args")
 ) |> mutate(file = path_rel(path, "r-source"))
 
 top10_r_fns <- slice_max(r_fns_df, lines, n = 10L, with_ties = FALSE) |>
   select(Function = name, File = file, Lines = lines)
+
+top15_r_args <- slice_max(r_fns_df, args, n = 15L, with_ties = FALSE) |>
+  select(Function = name, File = file, Args = args)
 
 top10_r_calls <- sort(table(r_calls_all), decreasing = TRUE) |>
   head(10L) |>
@@ -521,6 +527,13 @@ report <- c(
   md_table(top10_r_calls),
   "",
 
+  "## Most Arguments",
+  "",
+  "The R functions with the highest number of formal parameters:",
+  "",
+  md_table(mutate(top15_r_args, File = gh_link(File))),
+  "",
+
   "## The `.Internal` / `.Primitive` Dispatch System",
   "",
   paste0(
@@ -662,6 +675,7 @@ report <- c(
   glue("- **{n_do_fns}** C functions follow the `do_*` naming convention, one per `.Internal` entry."),
   glue("- There are **{n_r_fns} named R functions** defined in the base R library source files."),
   glue("- The dispatch bridge has **{n_internals + n_primitives} entries** connecting R names to C implementations."),
+  glue("- The R function with the most arguments is `{top15_r_args$Function[1]}` with {top15_r_args$Args[1]} parameters."),
   ""
 )
 
