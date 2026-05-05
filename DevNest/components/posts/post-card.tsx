@@ -12,7 +12,12 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { PostBody } from "@/components/posts/post-body";
 import type { FeedPostRow } from "@/lib/feed/types";
 
-const dateFormatter = new Intl.DateTimeFormat(undefined, {
+// Pinned locale, not `undefined`: with `undefined` Node falls back to the
+// server's system locale (en-US, 12-hour) while the browser uses
+// `navigator.language` (often EU 24-hour), and the two strings never
+// match — every <PostCard> would log a hydration mismatch. en-GB gives
+// us deterministic DD-MMM-YYYY / 24h output everywhere.
+const dateFormatter = new Intl.DateTimeFormat("en-GB", {
   dateStyle: "medium",
   timeStyle: "short",
 });
