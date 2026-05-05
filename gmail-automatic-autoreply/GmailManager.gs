@@ -1,6 +1,7 @@
 // ---------------------------------------------------------------------------
 // GmailManager.gs
-// Reads and updates Gmail vacation responder settings.
+// Reads and updates Gmail vacation responder settings via the Gmail REST API
+// (Advanced Gmail Service). GmailApp does not expose vacation responder methods.
 // ---------------------------------------------------------------------------
 
 /**
@@ -12,15 +13,16 @@
  * @returns {{ enabled: boolean, startTime: Date|null, endTime: Date|null, message: string }}
  */
 function getCurrentVacationState() {
-  var responder = GmailApp.getVacationResponder();
+  var settings = Gmail.Users.Settings.getVacation('me');
   var now = new Date();
 
-  var startTime = responder.getStartTime() ? new Date(responder.getStartTime()) : null;
-  var endTime   = responder.getEndTime()   ? new Date(responder.getEndTime())   : null;
-  var message   = responder.getResponseBodyPlainText() || '';
+  // startTime and endTime are epoch milliseconds returned as strings (int64).
+  var startTime = settings.startTime ? new Date(parseInt(settings.startTime)) : null;
+  var endTime   = settings.endTime   ? new Date(parseInt(settings.endTime))   : null;
+  var message   = settings.responseBodyPlainText || '';
 
   // Treat as active only if the flag is set AND the window has not expired.
-  var enabled = responder.isEnabled() && (endTime === null || endTime > now);
+  var enabled = !!settings.enableAutoReply && (endTime === null || endTime > now);
 
   return { enabled: enabled, startTime: startTime, endTime: endTime, message: message };
 }
@@ -50,7 +52,13 @@ function configureAutoreply(interval) {
     return false;
   }
 
-  GmailApp.setVacationResponder(true, message, null, null, false, false, startTime, endTime);
+  Gmail.Users.Settings.updateVacation({
+    enableAutoReply: true,
+    responseBodyPlainText: message,
+    startTime: startTime.getTime().toString(),
+    endTime: endTime.getTime().toString()
+  }, 'me');
+
   return true;
 }
 
@@ -58,17 +66,16 @@ function configureAutoreply(interval) {
  * Disables the Gmail vacation responder.
  * Handles both the active case and the expired-but-still-set case (enableAutoReply
  * stays true in the API after endTime passes until explicitly cleared).
- * Skips the API call if the responder is already disabled and not in expired state.
+ * Skips the API call if the responder is already disabled.
  *
  * @returns {boolean} true if the responder was disabled, false if already off.
  */
 function disableAutoreply() {
-  var responder = GmailApp.getVacationResponder();
+  var settings = Gmail.Users.Settings.getVacation('me');
 
-  // If enableAutoReply is already false there is nothing to do.
-  if (!responder.isEnabled()) return false;
+  if (!settings.enableAutoReply) return false;
 
-  GmailApp.setVacationResponder(false);
+  Gmail.Users.Settings.updateVacation({ enableAutoReply: false }, 'me');
   return true;
 }
 
