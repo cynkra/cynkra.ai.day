@@ -58,7 +58,7 @@ Outside of this, experiment, feel free to give your own spin to the workflow.
 * Call `openspec init` and select Claude Code
 * Start `claude`
 
-# Green field project
+## Green field project
 
 Kickstart suggestion:
 
@@ -67,11 +67,11 @@ Kickstart suggestion:
 * Call `/opsx:apply` to start the work
 * Call `/opsx:archive` to move the feature folder to archive (it first syncs)
 
-# Lunch
+## Lunch
 
 We will have lunch at Miss-Miu, Badenerstrasse 97 (044 525 00 80).
 
-# Brown field project
+## Brown field project
 
 * Pick a project you like from another group and a new partner to work on it
     * Try to gather the next steps from the state of the project (might be explicit or not!)
@@ -83,7 +83,7 @@ We will have lunch at Miss-Miu, Badenerstrasse 97 (044 525 00 80).
       * remove all the specs without looking, commit, and restart the openspec dance, to get a "true" brownfield experience
 * You can also choose an external brown field project if you prefer
 
-# API key with Claude Teams (if needed)
+## API key with Claude Teams (if needed)
 
 API key usage is separate from Claude Teams by default and also more expensive, but we can work around and spend our Claude Team tokens with API keys, do the following.
 
