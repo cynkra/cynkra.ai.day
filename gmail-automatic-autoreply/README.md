@@ -32,22 +32,31 @@ Copy the contents of each `.gs` file from this repo into the Apps Script editor:
 
 Paste the file contents into each corresponding editor tab.
 
-### 3. Enable the Google Calendar API
+### 3. Apply the manifest (`appsscript.json`)
+
+The manifest configures OAuth scopes and the Advanced Calendar Service. It is hidden by default:
+
+1. Click the gear icon (**Project Settings**) in the left sidebar
+2. Check **"Show 'appsscript.json' manifest file in editor"**
+3. Open the `appsscript.json` tab that appears in the editor
+4. Replace its entire contents with the `appsscript.json` from this repo
+
+### 4. Enable the Google Calendar API
 
 In the Apps Script editor, click **+** next to **Services**, select **Google Calendar API**, and click **Add**. The default GCP project handles API enablement automatically — no Google Cloud Console steps required.
 
-### 4. Configure
+### 5. Configure
 
 Open `Config.gs` and edit the constants at the top:
 
 - `AUTOREPLY_MESSAGE_TEMPLATE` — the message your correspondents will receive. Use `{return_date}` as a placeholder for your last OOO day (e.g. `May 22, 2026`).
 - `LOOKAHEAD_DAYS` — how many days ahead to scan for OOO events (default: 90).
 
-### 5. Run once manually
+### 6. Run once manually
 
 In the Apps Script editor, select the `sync` function from the dropdown and click **Run**. Accept the permission prompts. Check that it runs without errors in the **Execution log**.
 
-### 6. Add a daily trigger
+### 7. Add a daily trigger
 
 1. Click the clock icon (**Triggers**) in the left sidebar
 2. Click **+ Add Trigger** (bottom right)
