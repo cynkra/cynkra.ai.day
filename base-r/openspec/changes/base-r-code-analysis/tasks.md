@@ -24,6 +24,7 @@
 - [ ] 4.2 Parse each file with `treesitter.r`; collect function definitions and all `.Internal()` / `.Primitive()` call sites; log and skip unparseable files
 - [ ] 4.3 Compute top-10 largest R functions by line count
 - [ ] 4.4 Build a complete inventory table of `.Internal` and `.Primitive` calls (R name → C entry point)
+- [ ] 4.5 Count call-site occurrences of each function name across all R files; produce a top-10 most-called table
 
 ## 5. Report Generation
 
