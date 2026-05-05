@@ -22,7 +22,7 @@ test.describe("create post", () => {
     const code = `const greet = (name: string) => \`hello, \${name}\`;`;
     const body = `${marker}\n\n\`\`\`ts\n${code}\n\`\`\``;
 
-    await page.getByPlaceholder(/share something with code/i).fill(body);
+    await page.getByPlaceholder(/what's on your mind/i).fill(body);
     await page.getByRole("button", { name: /^post$/i }).click();
 
     // 3. Marker visible on the feed (the action revalidates `/feed`).
@@ -40,7 +40,7 @@ test.describe("create post", () => {
     await expect(page.getByText(marker)).toBeVisible();
 
     // 5. The code block has our injected copy button.
-    const wrapper = page.locator(".codeblock-wrapper").first();
+    const wrapper = page.locator(".codeblock").first();
     await expect(wrapper.locator("pre")).toBeVisible();
     await wrapper.getByRole("button", { name: /copy/i }).click();
 

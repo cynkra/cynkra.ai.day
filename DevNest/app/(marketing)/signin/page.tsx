@@ -2,9 +2,12 @@ import { type Route } from "next";
 import { redirect } from "next/navigation";
 
 import { signIn } from "@/auth";
+import { BrandMark } from "@/components/site/brand-mark";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+
+import { EmailForm } from "./email-form";
 
 const ERROR_COPY: Record<string, { title: string; body: string }> = {
   AccessDenied: {
@@ -55,57 +58,83 @@ export default async function SignInPage({
   }
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-md flex-col justify-center gap-8 px-6 py-12">
-      <div className="space-y-2">
-        <h1 className="text-3xl font-semibold tracking-tight">
-          Sign in to DevNest
-        </h1>
-        <p className="text-muted-foreground text-sm">
-          OAuth is the fast path. Email is the fallback.
-        </p>
+    <main className="mx-auto flex min-h-screen max-w-md flex-col items-stretch justify-center gap-6 px-6 py-16">
+      <div
+        className="bg-card border-border rounded-lg border"
+        style={{
+          padding: "48px 40px",
+          boxShadow: "var(--shadow-md)",
+        }}
+      >
+        <header className="space-y-3 text-center">
+          <BrandMark size="lg" />
+          <div className="space-y-1">
+            <h1 className="text-[20px] font-semibold tracking-tight">
+              Sign in to DevNest
+            </h1>
+            <p className="text-muted-foreground text-[13px]">
+              for software developers.
+            </p>
+          </div>
+        </header>
+
+        {errorCopy ? (
+          <div
+            role="alert"
+            aria-live="polite"
+            className="border-destructive/50 bg-destructive/5 mt-6 rounded-md border p-3 text-[12px]"
+          >
+            <p className="text-destructive font-semibold">{errorCopy.title}</p>
+            <p className="text-muted-foreground mt-1">{errorCopy.body}</p>
+          </div>
+        ) : null}
+
+        <div className="mt-7 grid gap-2.5">
+          <form action={signInWithGithub}>
+            <Button type="submit" className="h-10 w-full" variant="outline">
+              Continue with GitHub
+            </Button>
+          </form>
+          <form action={signInWithGitlab}>
+            <Button type="submit" className="h-10 w-full" variant="outline">
+              Continue with GitLab
+            </Button>
+          </form>
+        </div>
+
+        <EmailForm
+          action={signInWithEmail}
+          expanded={
+            <div className="space-y-2">
+              <Label htmlFor="email" className="text-[12px]">
+                Email
+              </Label>
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                required
+                autoComplete="email"
+                placeholder="you@example.com"
+              />
+              <Button type="submit" className="h-10 w-full">
+                Send magic link
+              </Button>
+              <p className="text-muted-foreground text-[11px]">
+                A one-time sign-in link, no password.
+              </p>
+            </div>
+          }
+        />
       </div>
 
-      {errorCopy ? (
-        <div className="border-destructive/50 bg-destructive/5 rounded-md border p-4 text-sm">
-          <p className="text-destructive font-semibold">{errorCopy.title}</p>
-          <p className="text-muted-foreground mt-1">{errorCopy.body}</p>
-        </div>
-      ) : null}
-
-      <div className="grid gap-3">
-        <form action={signInWithGithub}>
-          <Button type="submit" className="w-full" variant="outline">
-            Sign in with GitHub
-          </Button>
-        </form>
-        <form action={signInWithGitlab}>
-          <Button type="submit" className="w-full" variant="outline">
-            Sign in with GitLab
-          </Button>
-        </form>
-      </div>
-
-      <div className="border-border/60 my-2 border-t" />
-
-      <form action={signInWithEmail} className="space-y-3">
-        <div className="space-y-1.5">
-          <Label htmlFor="email">Email</Label>
-          <Input
-            id="email"
-            name="email"
-            type="email"
-            required
-            autoComplete="email"
-            placeholder="you@example.com"
-          />
-        </div>
-        <Button type="submit" className="w-full">
-          Send magic link
-        </Button>
-        <p className="text-muted-foreground text-xs">
-          We&apos;ll email a one-time link. No password.
-        </p>
-      </form>
+      <p className="text-[var(--color-ink-faint)] flex justify-center gap-2 font-mono text-[11px]">
+        <span>terms</span>
+        <span aria-hidden>·</span>
+        <span>privacy</span>
+        <span aria-hidden>·</span>
+        <span>status</span>
+      </p>
     </main>
   );
 }

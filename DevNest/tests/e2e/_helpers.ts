@@ -58,6 +58,9 @@ export async function signInViaMagicLink(
 ): Promise<{ email: string }> {
   const email = `e2e-${workerIndex}-${Date.now()}@e2e.devnest.local`;
   await page.goto("/signin");
+  // The new sign-in screen hides the email input behind a "Continue
+  // with email" button until clicked, per design.md § Sign-in.
+  await page.getByRole("button", { name: /continue with email/i }).click();
   await page.getByLabel(/email/i).fill(email);
   await page.getByRole("button", { name: /send magic link/i }).click();
   await expect(

@@ -1,11 +1,17 @@
 import { eq } from "drizzle-orm";
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
 import { db } from "@/lib/db";
 import { accounts, users } from "@/lib/db/schema";
 import { requireUser } from "@/lib/auth/require-user";
+import {
+  PREFS_COOKIE,
+  parsePreferences,
+} from "@/lib/preferences/cookie";
 
 import { DisconnectForm } from "./disconnect-form";
+import { PreferencesForm } from "./preferences-form";
 import { ProfileForm } from "./profile-form";
 
 const PROVIDER_LABEL: Record<string, string> = {
@@ -39,17 +45,20 @@ export default async function SettingsPage() {
 
   const canDisconnect = linked.length > 1;
 
+  const store = await cookies();
+  const prefs = parsePreferences(store.get(PREFS_COOKIE)?.value);
+
   return (
-    <main className="mx-auto max-w-xl px-6 py-12">
-      <header className="mb-8 space-y-1">
-        <h1 className="text-3xl font-semibold tracking-tight">Settings</h1>
-        <p className="text-muted-foreground text-sm">
-          Edit your public profile and manage connected sign-in methods.
+    <div className="space-y-12 px-1 py-6">
+      <header className="space-y-1">
+        <h1 className="text-[20px] font-semibold tracking-tight">Settings</h1>
+        <p className="text-muted-foreground text-[13px]">
+          Profile, sign-in methods, and how the UI looks.
         </p>
       </header>
 
-      <section className="space-y-3">
-        <h2 className="text-lg font-semibold tracking-tight">Profile</h2>
+      <section className="space-y-4">
+        <h2 className="text-[14px] font-semibold tracking-tight">Profile</h2>
         <ProfileForm
           initial={{
             handle: user.handle,
@@ -60,16 +69,16 @@ export default async function SettingsPage() {
         />
       </section>
 
-      <section className="mt-12 space-y-3">
-        <h2 className="text-lg font-semibold tracking-tight">
+      <section className="space-y-4">
+        <h2 className="text-[14px] font-semibold tracking-tight">
           Sign-in methods
         </h2>
         {linked.length === 0 ? (
-          <p className="text-muted-foreground text-sm">
+          <p className="text-muted-foreground text-[13px]">
             No OAuth providers linked. You sign in via email magic link only.
           </p>
         ) : (
-          <ul className="divide-border/60 divide-y rounded-md border">
+          <ul className="divide-border/60 border-border divide-y rounded-md border">
             {linked.map((a) => (
               <li key={a.provider} className="px-4 py-3">
                 <DisconnectForm
@@ -82,6 +91,13 @@ export default async function SettingsPage() {
           </ul>
         )}
       </section>
-    </main>
+
+      <section className="space-y-4">
+        <h2 className="text-[14px] font-semibold tracking-tight">
+          Appearance &amp; layout
+        </h2>
+        <PreferencesForm initial={prefs} />
+      </section>
+    </div>
   );
 }

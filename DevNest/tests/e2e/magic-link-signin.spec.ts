@@ -9,7 +9,10 @@ test.describe("magic-link sign-in", () => {
   }, testInfo) => {
     await signInViaMagicLink(page, request, testInfo.workerIndex);
     await expect(page).toHaveURL(/\/feed$/);
-    await expect(page.getByRole("heading", { name: /^feed$/i })).toBeVisible();
-    await expect(page.getByRole("button", { name: /sign out/i })).toBeVisible();
+    // The sidebar's "Home" link is only visible to signed-in users
+    // (it's gated by `requiresAuth` in components/site/sidebar.tsx).
+    await expect(
+      page.getByRole("link", { name: /^home/i }).first(),
+    ).toBeVisible();
   });
 });
