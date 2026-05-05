@@ -1,0 +1,13 @@
+{
+  "vocab_size": 2000,
+  "train_frac": 0.9,
+  "sources": {
+    "faust1.txt": "https://www.gutenberg.org/cache/epub/2229/pg2229.txt",
+    "faust2.txt": "https://www.gutenberg.org/cache/epub/3160/pg3160.txt"
+  },
+  "total_chars": 886072,
+  "total_tokens": 324259,
+  "train_tokens": 291833,
+  "val_tokens": 32426,
+  "compression_chars_per_token": 2.73
+}

@@ -1,0 +1,15 @@
+# Goethe trainer — runtime dependencies
+# Install on the host Mac inside the project venv:
+#   python3 -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt
+# Or with uv (faster):
+#   uv venv && source .venv/bin/activate && uv pip install -r requirements.txt
+
+# MLX — Apple Silicon array/ML library (Mac-only; will fail on Linux)
+mlx>=0.18
+mlx-lm>=0.20
+
+# BPE tokenizer — works on any platform (also used by the in-container corpus prep)
+tokenizers>=0.20
+
+# numerical I/O for encoded corpus tensors
+numpy>=2.0

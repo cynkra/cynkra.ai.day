@@ -1,0 +1,21 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+.python-version
+
+# Corpus artifacts (regenerable from prepare.py; large; not source-of-truth)
+data/faust/raw/
+data/faust/*.bin
+data/faust/*.txt
+
+# Tokenizer artifacts (regenerable; binary)
+data/faust/tokenizer*.json
+
+# Training outputs
+checkpoints/
+runs/
+*.log
+
+# OS
+.DS_Store
