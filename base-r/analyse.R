@@ -213,6 +213,11 @@ comment_lines <- vapply(c_comments, function(x) as.integer(x$line), integer(1L))
 has_year <- lengths(regmatches(comment_texts,
                                gregexpr("\\b(19[7-9][0-9]|200[0-5])\\b",
                                         comment_texts))) > 0L
+clean_comment <- function(x, width = 120L) {
+  x <- gsub("\\s+", " ", trimws(x))
+  ifelse(nchar(x) > width, paste0(substr(x, 1L, width), "…"), x)
+}
+
 old_comments_df <- tibble(
   text = comment_texts[has_year],
   path = comment_paths[has_year],
@@ -223,12 +228,12 @@ old_comments_df <- tibble(
   ))
 ) |>
   arrange(year) |>
-  mutate(File = path_rel(path, "r-source"), Comment = trimws(text))
+  mutate(File = path_rel(path, "r-source"), Comment = clean_comment(text))
 
 flag_pattern <- "TODO|FIXME|HACK|XXX|BUG|KLUDGE"
 flagged_idx  <- grepl(flag_pattern, comment_texts, ignore.case = TRUE)
 flagged_df   <- tibble(
-  Comment = trimws(comment_texts[flagged_idx]),
+  Comment = clean_comment(comment_texts[flagged_idx]),
   File    = path_rel(comment_paths[flagged_idx], "r-source"),
   Line    = comment_lines[flagged_idx]
 ) |>
@@ -358,7 +363,7 @@ funny_idx <- grepl(funny_pat, all_texts, ignore.case = TRUE) |
              grepl("[[:alpha:]]!", all_texts) |
              grepl("[[:alpha:]]\\?", all_texts)
 funny_df <- tibble(
-  Comment = trimws(all_texts[funny_idx]),
+  Comment = clean_comment(all_texts[funny_idx]),
   File    = path_rel(all_paths[funny_idx], "r-source"),
   Line    = all_lines[funny_idx],
   Lang    = all_langs[funny_idx]
@@ -453,9 +458,9 @@ report <- c(
     "hottest built-ins."
   ),
   "",
-  glue("In total, **{n_internals} `.Internal`** and **{n_primitives} `.Primitive`** entries were found."),
+  glue("In total, **{n_internals} `.Internal`** and **{n_primitives} `.Primitive`** entries were found. A sample:"),
   "",
-  md_table(dispatch_df),
+  md_table(head(dispatch_df, 10L)),
   "",
 
   "## C Dispatch Layer: `do_*` Functions",
@@ -474,10 +479,8 @@ report <- c(
 
   "## `goto` in the Wild",
   "",
-  glue(
-    "Despite being considered harmful since 1968, base R's C source contains ",
-    "**{total_gotos} `goto` statements**. Top offending files:"
-  ),
+  glue("Base R's C source contains **{total_gotos} `goto` statements**, ",
+       "mostly used for error-handling cleanup. Top files:"),
   "",
   md_table(mutate(top_goto, File = gh_link(File))),
   "",
@@ -538,7 +541,7 @@ report <- c(
   glue("- The biggest single R function, `{top10_r_fns$Function[1]}`, spans **{top10_r_fns$Lines[1]} lines** of R."),
   glue("- The most-called internal C function is `{top10_c_calls$Function[1]}` ({top10_c_calls[['Call Sites']][1]} call sites)."),
   glue("- The most-called R function is `{top10_r_calls$Function[1]}` ({top10_r_calls[['Call Sites']][1]} call sites)."),
-  glue("- **{total_gotos} `goto` statements** survive in the C source — a relic of pre-ANSI C style."),
+  glue("- **{total_gotos} `goto` statements** appear in the C source, mostly for error-handling cleanup."),
   glue("- **{n_do_fns}** C functions follow the `do_*` naming convention, one per `.Internal` entry."),
   glue("- There are **{n_r_fns} named R functions** defined in the base R library source files."),
   glue("- The dispatch bridge has **{n_internals + n_primitives} entries** connecting R names to C implementations."),
