@@ -22,27 +22,27 @@
 
 ## 4. Web client: PWA shell
 
-- [ ] 4.1 In `phone-app/web/`, scaffold a Web App Manifest at `public/manifest.webmanifest` with name, short_name, start_url `/`, display `standalone`, theme_color, background_color, and icon set (192x192, 512x512, plus iOS-specific 180x180 apple-touch-icon).
-- [ ] 4.2 Reference the manifest from the root layout (`<link rel="manifest" href="/manifest.webmanifest">`); add iOS-specific tags (`apple-mobile-web-app-capable`, `apple-mobile-web-app-status-bar-style`, `apple-touch-icon`).
-- [ ] 4.3 Implement a service worker at `public/service-worker.js` (or via `next-pwa` / Workbox) that caches the application shell with a stale-while-revalidate strategy. The cache version SHALL be tied to the build hash so a deploy invalidates stale shells.
-- [ ] 4.4 Register the service worker from a client-only React component on first mount; expose a kill-switch URL (`/sw-unregister`) that calls `navigator.serviceWorker.getRegistration()` then `.unregister()` for users stranded on a bad service worker.
-- [ ] 4.5 Add an offline indicator that listens to `navigator.onLine` and `online`/`offline` events; show a non-blocking banner when offline; do not block the UI.
-- [ ] 4.6 Add a one-time iPhone install instruction card: shown only on iOS Safari (UA sniff is fine here) and only if the user has not yet dismissed it; persist dismissal in `localStorage` under `pwa-install-dismissed-v1`.
+- [x] 4.1 In `phone-app/web/`, scaffold a Web App Manifest at `public/manifest.webmanifest` with name, short_name, start_url `/`, display `standalone`, theme_color, background_color, and icon set (192x192, 512x512, plus iOS-specific 180x180 apple-touch-icon).
+- [x] 4.2 Reference the manifest from the root layout (`<link rel="manifest" href="/manifest.webmanifest">`); add iOS-specific tags (`apple-mobile-web-app-capable`, `apple-mobile-web-app-status-bar-style`, `apple-touch-icon`).
+- [x] 4.3 Implement a service worker at `public/service-worker.js` (or via `next-pwa` / Workbox) that caches the application shell with a stale-while-revalidate strategy. The cache version SHALL be tied to the build hash so a deploy invalidates stale shells.
+- [x] 4.4 Register the service worker from a client-only React component on first mount; expose a kill-switch URL (`/sw-unregister`) that calls `navigator.serviceWorker.getRegistration()` then `.unregister()` for users stranded on a bad service worker.
+- [x] 4.5 Add an offline indicator that listens to `navigator.onLine` and `online`/`offline` events; show a non-blocking banner when offline; do not block the UI.
+- [x] 4.6 Add a one-time iPhone install instruction card: shown only on iOS Safari (UA sniff is fine here) and only if the user has not yet dismissed it; persist dismissal in `localStorage` under `pwa-install-dismissed-v1`.
 
 ## 5. Web client: Setup-on-iPhone page
 
-- [ ] 5.1 Add a `/settings/iphone` route in the PWA (Next.js page) that requires authentication.
-- [ ] 5.2 On that page, render numbered installation instructions (Add to Home Screen → Generate API Token → Download Shortcut → paste token → done) with screenshots/icons.
-- [ ] 5.3 Render a list of the user's existing tokens via `GET /auth/tokens`, showing `name`, `created_at`, `last_used_at`, and a "Revoke" button per row that calls `DELETE /auth/tokens/:id` and refreshes the list.
-- [ ] 5.4 Render a "Generate API Token" form (`name` input + submit) that calls `POST /auth/tokens` and, on success, displays the raw token alongside a copy-to-clipboard button. After the user navigates away from the success view, the raw token MUST NOT be retrievable from the UI.
-- [ ] 5.5 Render a "Download Shortcut" link that points to `/shortcuts/anki-clip.shortcut` (a static asset).
+- [x] 5.1 Add a `/settings/iphone` route in the PWA (Next.js page) that requires authentication.
+- [x] 5.2 On that page, render numbered installation instructions (Add to Home Screen → Generate API Token → Download Shortcut → paste token → done) with screenshots/icons.
+- [x] 5.3 Render a list of the user's existing tokens via `GET /auth/tokens`, showing `name`, `created_at`, `last_used_at`, and a "Revoke" button per row that calls `DELETE /auth/tokens/:id` and refreshes the list.
+- [x] 5.4 Render a "Generate API Token" form (`name` input + submit) that calls `POST /auth/tokens` and, on success, displays the raw token alongside a copy-to-clipboard button. After the user navigates away from the success view, the raw token MUST NOT be retrievable from the UI.
+- [x] 5.5 Render a "Download Shortcut" link that points to `/shortcuts/anki-clip.shortcut` (a static asset).
 
 ## 6. iOS Shortcut
 
 - [ ] 6.1 Build the Shortcut once by hand in Apple's Shortcuts app on iPhone or iPad: receive shared text, prompt for an optional deck name (default `Inbox`), POST to `https://<backend>/cards` with body `{ id: <uuid generated in shortcut>, source_text: <shared text>, source_url: <shared URL or empty>, schema_version: 1 }` and header `Authorization: Token <stored PAT>`, show a success or error notification based on HTTP status.
 - [ ] 6.2 Store the PAT inside the Shortcut as a private dictionary value (not as plain text in a comment); store the backend host as a separate dictionary value so the Shortcut can be re-used across staging and production.
 - [ ] 6.3 Export the Shortcut to a `.shortcut` file via the iOS Shortcuts app and commit to `phone-app/web/public/shortcuts/anki-clip.shortcut`.
-- [ ] 6.4 Add a sibling `phone-app/web/public/shortcuts/README.md` that explains, step by step, how to rebuild the Shortcut from scratch in case Apple changes the file format. Include the exact actions, the JSON body shape, and the auth header format.
+- [x] 6.4 Add a sibling `phone-app/web/public/shortcuts/README.md` that explains, step by step, how to rebuild the Shortcut from scratch in case Apple changes the file format. Include the exact actions, the JSON body shape, and the auth header format.
 
 ## 7. Verification
 
