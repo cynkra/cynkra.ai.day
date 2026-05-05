@@ -1,0 +1,13 @@
+^indiedown\.Rproj$
+^\.Rproj\.user$
+^LICENSE\.md$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$
+^\.github$
+^README\.html$
+^\.lintr$
+^README\.Rmd$
+^CODE_OF_CONDUCT\.md$
+^cran-comments\.md$
+^renovate\.json$

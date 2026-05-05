@@ -1,0 +1,5 @@
+url: https://indiedown.cynkra.com/
+
+template:
+  package: cynkratemplate
+  bootstrap: 5

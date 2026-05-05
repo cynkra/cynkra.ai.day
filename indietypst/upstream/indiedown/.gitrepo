@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/ingydotnet/git-subrepo#readme
+;
+[subrepo]
+	remote = git@github.com:cynkra/indiedown.git
+	branch = main
+	commit = ad13ebe2d75b4a7ee89d43a18e3579e042dd6a24
+	parent = 40e67c1cd91494fea6e16d29f3c31f281c1a2a11
+	method = merge
+	cmdver = 0.4.9
