@@ -27,15 +27,20 @@ function fetchOooEvents_(windowStart, windowEnd) {
 
     // Filter: outOfOffice event type only.
     if (item.eventType !== 'outOfOffice') return;
-    // Filter: all-day only (start.date present, not start.dateTime).
-    if (!item.start || !item.start.date) return;
 
-    var startDate = parseDate_(item.start.date);
-    // Calendar API end.date is exclusive (day after last OOO day), so subtract one day.
-    var endDate = parseDate_(item.end.date);
+    // Google stores OOO events as timed midnight-to-midnight (start.dateTime) even when
+    // "All day" is checked in the UI. Accept both start.date and start.dateTime; extract
+    // the date by taking the YYYY-MM-DD portion before the 'T'.
+    var startStr = (item.start.date || item.start.dateTime || '').split('T')[0];
+    var endStr   = (item.end.date   || item.end.dateTime   || '').split('T')[0];
+    if (!startStr || !endStr) return;
+
+    var startDate = parseDate_(startStr);
+    // end is exclusive (day after last OOO day) in both the all-day and timed conventions.
+    var endDate = parseDate_(endStr);
     endDate.setDate(endDate.getDate() - 1);
 
-    console.log('OOO event found: %s → %s (raw end: %s)', item.start.date, formatDate_(endDate), item.end.date);
+    console.log('OOO event found: %s → %s (raw end: %s)', startStr, formatDate_(endDate), endStr);
     events.push({ start: startDate, end: endDate });
   });
 
