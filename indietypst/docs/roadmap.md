@@ -1,217 +1,260 @@
 # indietypst — Roadmap
 
-Status: Draft (2026-05-05)
+Status: Draft (2026-05-05, rev 2)
 
 This roadmap is written for the team that will actually build indietypst:
 **R developers/engineers with limited Quarto and Typst experience**, who
-need to **produce many design prototypes early** so the corporate-design
-UX can be assessed before any abstraction is committed to.
+need confidence that the full toolchain works on real documents before
+any abstraction is committed to.
 
-It deliberately:
-
-- front-loads hands-on learning in Typst itself, not in R,
-- defers abstraction until after several throwaway prototypes exist,
-- treats UX assessment (rendered PDFs reviewed by humans, side-by-side)
-  as a first-class checkpoint, not an afterthought,
-- leans on existing tools (see [design.md § Prior art](design.md)) rather
-  than re-implementing them.
+The strategy is **"play the whole game"**: from the first week the team
+runs the full path — pick a real cynkra document already rendered with
+indiedown, replicate it end-to-end as a Quarto+Typst document driven by
+a minimal `cynkradown` R package, compare PDFs, learn what is missing,
+add the next document. The framework (`indietypst`) is *extracted* from
+working `cynkradown` code once the patterns are obvious; it is not
+designed up front.
 
 ## Operating principles
 
-1. **Build before you abstract.** No R wrapper until ≥6 hand-written
-   `.typ` prototypes exist and have been reviewed.
-2. **Throwaway is fine.** Phase 1 prototypes are not the codebase. Expect
-   to delete most of them.
-3. **Render every day.** A prototype that has not produced a PDF in the
-   last 24 h does not exist.
-4. **Steal aggressively.** `r2typ`, `quarto-r`, `typst-gather`,
-   `quarto-ext/typst-templates`, and Typst Universe packages cover most
-   of the plumbing. Do not reinvent them. See
-   [design.md § Prior art](design.md).
-5. **One reviewer not on the team.** Every UX checkpoint shows rendered
-   PDFs to at least one person who did not author them. Designers
-   preferred; non-authors otherwise.
-6. **Keep cynkradown honest.** indietypst is validated against
-   `cynkradown` and one second template (a letter or report variant) at
-   every phase from P3 onward.
+1. **Vertical slices, not horizontal phases.** Each iteration takes one
+   real document end-to-end (`.qmd` → Quarto → Typst → PDF, driven by
+   a `cynkradown` R package) and ends with a side-by-side review against
+   the indiedown-rendered original. No iteration is "pure design" or
+   "pure plumbing".
+2. **Crude is fine. Duplicate before you abstract.** First three
+   iterations may hardcode and copy-paste shamelessly. The framework
+   emerges from observed duplication, not from speculation.
+3. **Every iteration produces a PDF.** A change that has not produced a
+   reviewable PDF in the last 24 h does not exist.
+4. **Compare-to-original is the acceptance test.** Every iteration ends
+   with the new PDF placed next to the indiedown-rendered original and
+   reviewed by at least one non-author. Acceptable visual deltas are
+   recorded; surprises become tasks.
+5. **Steal aggressively.** `quarto-r`, `r2typ`, `typst-gather`,
+   `quarto-ext/typst-templates`, Typst Universe packages cover most of
+   the plumbing. See [design.md § Prior art](design.md). Do not
+   reinvent.
+6. **`indietypst` is harvested, not designed.** It does not exist as a
+   real package until at least three documents have been rendered
+   through `cynkradown` and the duplication is obvious.
 
-## Phase 0 — Onboarding (parallel, ~3 days)
+## Iteration 0 — Toolchain spike (~2 days, parallel)
 
-Goal: every contributor can render a Typst document, a Quarto+Typst
-document, and an indiedown PDF on their own machine, and has read enough
-prior art to know what already exists.
+Goal: every contributor has rendered *something* through the full path
+and confirmed the local toolchain works. No real document yet.
 
-Each contributor:
+Per contributor:
 
-- Works through the Typst tutorial (https://typst.app/docs/tutorial/).
-- Renders one indiedown sample PDF from
-  [`upstream/indiedown`](../upstream/indiedown/) and reads its `R/` and
-  `inst/mypackage/` sources.
-- Builds one document by hand following [Quarto's Typst
-  guide](https://quarto.org/docs/output-formats/typst.html).
-- Clones and renders **one** project from the prior-art shortlist:
-  `kazuyanagimoto/typstcv`, `mcanouil/quarto-mcanouil`, or
-  `quarto-ext/typst-templates`.
+- Render the indiedown sample report from
+  [`upstream/indiedown`](../upstream/indiedown/) to PDF locally.
+- Render the same content as a hand-typed `.qmd` with `format: typst`
+  and the stock Quarto Typst format. PDFs will not match — that is the
+  point.
+- Skim the Typst tutorial (https://typst.app/docs/tutorial/) and the
+  prior-art shortlist in [design.md § Prior art](design.md); clone and
+  render **one** of `kazuyanagimoto/typstcv`,
+  `mcanouil/quarto-mcanouil`, `quarto-ext/typst-templates`.
 
-Exit criterion: each contributor opens a 5-line PR adding their name and
-the prior-art project they cloned to `docs/onboarding.md`.
+Exit criterion: a 5-line PR per contributor adding their name and the
+prior-art project they cloned to `docs/onboarding.md`.
 
-## Phase 1 — Throwaway design prototypes (~1.5 weeks, fan out)
+## Iteration 1 — Document A end-to-end through `cynkradown` (~1 week)
 
-Goal: explore the design space in raw Typst before committing to any
-abstraction.
+Goal: render **one** real cynkra document through the full path. No
+indietypst, no scaffolder, no abstraction. The point is to see the whole
+game.
 
-- Each contributor produces **≥6 distinct `.typ` prototypes** under
-  `prototypes/<author>/<name>/main.typ`. Plain Typst, no Quarto, no R.
-- Coverage matrix the team should hit collectively (not per person):
-  title pages, running headers/footers, code blocks, figures, tables,
-  signature blocks, two-column variants, letter format.
-- Borrow shapes from `modern-cv`, `letter-pro`, `biz-report`,
-  `quarto-mcanouil`. Cite the source in a one-line comment in `main.typ`.
-- Each prototype includes a `README.md` with: what it explores, what
-  worked, what didn't, one screenshot.
+- Pick **Document A**: the simplest real cynkra report already rendered
+  with indiedown — minimal title page, plain prose, a few sections, no
+  fancy tables.
+- Create `cynkradown/` as a hand-written R package containing:
+  - `inst/_extensions/cynkradown/` — minimal Quarto extension (started
+    from `quarto-ext/typst-templates/dept-news` or similar).
+  - `inst/indietypst/preamble.typ` — Typst `#set`/`#show` rules pulled
+    over from `preamble.tex` by hand.
+  - `inst/indietypst/defaults.yaml` — Quarto YAML.
+  - `R/install_extension.R` — wraps `quarto::quarto_add_extension()`
+    to wire the bundled extension into a project.
+  - `R/cd_page_title.R` — one design generator returning Typst markup,
+    raw strings, no abstraction.
+- Convert the source `.Rmd` to `.qmd` by hand (mechanical for prose,
+  case-by-case for chunks). No `port_rmd_to_qmd()` helper yet.
+- Render. Compare side-by-side with the indiedown-rendered original.
 
-UX checkpoint at half-time and end of phase:
+Acceptance: PDF reviewed against original by one non-author. Visual
+deltas listed in `cynkradown/NOTES.md` with severity.
 
-- 60-min review with one external reviewer.
-- Print-quality PDFs, A4, side-by-side on a wall or in a slide deck.
-- Output: a written list of ~10 patterns to support and ~5 to drop.
+Explicit non-goals of this iteration:
 
-Exit criterion: the patterns list is committed as
-`docs/prototype-patterns.md` and at least one cynkra-house-style draft
-is among the kept prototypes.
+- No `indietypst` package.
+- No font helper, no `dr_typst()`, no `pre_processor.R`.
+- No "design system". Hardcode everything; we have one document.
 
-**Explicit non-goals of this phase:** R code, Quarto, package skeletons,
-font helpers, abstraction of any kind.
+## Iteration 2 — Document B (~1 week)
 
-## Phase 2 — Promote the best prototypes into Quarto+Typst (~1 week)
+Goal: render a **structurally different** cynkra document through
+`cynkradown`. The diff between Iterations 1 and 2 is where the
+customization vocabulary starts to emerge.
 
-Goal: confirm the chosen designs survive being driven by markdown content
-instead of hand-typed Typst, and pick **one** Quarto extension structure
-to build on.
+- Pick **Document B**: a cynkra letter, or a two-column report — must
+  differ from A in layout (not just content).
+- Extend `cynkradown` minimally to handle B without breaking A.
+- Where A and B require *different* Typst settings driven by metadata
+  (e.g. `twocolumn: true`), introduce
+  `inst/indietypst/pre_processor.R` for the first time. Prototype it
+  as a Quarto pre-render script *and* as a Lua filter; pick one based
+  on which is less awkward for the actual rule.
+- If a design generator can be reused between A and B, do so — but do
+  not invent ones speculatively.
 
-- Pick the 2–3 strongest Phase 1 prototypes.
-- Re-implement each as a hand-written Quarto extension under
-  `prototypes/quarto/<name>/_extensions/<name>/`. Still no R.
-- Drive each from the *same* `.qmd` body so the comparison is honest.
-- Borrow the partials structure from `quarto-ext/typst-templates`.
+Acceptance: both A and B render via `quarto render` against the same
+installed `cynkradown`, both reviewed against originals.
 
-UX checkpoint:
+What we learn: which of indiedown's three customization layers we
+actually need at this scale, and what their Typst-flavoured shapes look
+like.
 
-- Render the same `.qmd` against each candidate extension.
-- 30-min review; pick one.
+## Iteration 3 — Document C, with edge cases (~1 week)
 
-Exit criterion: one canonical Quarto extension layout selected and
-documented in `docs/extension-layout.md`.
+Goal: render a third cynkra document that breaks something. The point
+is to discover where `cynkradown` is brittle while it is still small
+enough to refactor cheaply.
 
-## Phase 3 — Hand-build cynkradown as a real R package (~1 week)
+- Pick **Document C**: something with at least one non-trivial element —
+  tables (`kableExtra`-like in indiedown), figures with captions in a
+  brand style, a custom title page with a logo, or a long signature
+  block.
+- Extend `cynkradown` to handle C. Refactor freely; no compatibility
+  guarantees yet.
+- Introduce font handling here: at least one declared brand font with
+  a system fallback to a bundled open-source equivalent (see
+  [design.md goal 5](design.md)).
 
-Goal: produce one working corporate-design template the indietypst
-scaffolder will later mass-produce. No scaffolder yet.
+Acceptance: A, B, C all render against the same `cynkradown`. PDFs
+reviewed. `cynkradown/NOTES.md` summarizes the duplication and patterns
+the team observed across the three iterations — this list is the
+input to Iteration 4.
 
-- Create `cynkradown/` as a hand-written R package (sibling of
-  `indietypst/`).
-- Implement the three customization layers from
-  [design.md § Three-layer customization](design.md):
-  - `inst/indietypst/defaults.yaml`
-  - `inst/indietypst/preamble.typ`
-  - `inst/indietypst/pre_processor.R` (start with a Quarto pre-render
-    script; revisit Lua filter alternative if needed)
-- One design generator (e.g. `cd_page_title()`). Build on
-  [`r2typ`](https://github.com/y-sunflower/r2typ) if it fits; otherwise
-  use raw strings.
-- `install_indietypst_extension()` + `check_indietypst_extension()`
-  wrapping `quarto::quarto_add_extension()`.
+## Iteration 4 — Extract `indietypst` from `cynkradown` (~1.5 weeks)
 
-UX checkpoint:
+Goal: now that three documents have been rendered, the duplication
+between `cynkradown`'s pieces and "what every template will need" is
+visible. Extract that into `indietypst`.
 
-- Render the cynkra "annual report" sample from indiedown's archives
-  through cynkradown.
-- Side-by-side with the LaTeX-rendered original; reviewer notes
-  pixel/typography deltas.
+- Refactor `cynkradown` so that anything generic moves into a new
+  `indietypst/` R package.
+- Implement `create_indietypst_package("...")` to produce a package
+  that, when filled in with assets equivalent to `cynkradown`'s,
+  renders A, B, and C identically to the current hand-built version.
+- Implement `install_indietypst_extension()`,
+  `check_indietypst_extension()`, `dr_typst()` (versions, extension
+  resolution, sample render).
+- Implement `use_indietypst_gfonts()` (scaffold-time only).
 
-Exit criterion: cynkradown renders a non-trivial document end-to-end on
-a clean machine that has only R, Quarto, and the bundled fonts.
-
-## Phase 4 — Generalize into the indietypst scaffolder (~1.5 weeks)
-
-Goal: reverse-engineer the hand-built cynkradown into
-`create_indietypst_package("mytypst")`.
-
-- Implement `create_indietypst_package()` to produce a package
-  byte-equivalent to (or at least PDF-equivalent to) cynkradown's
-  hand-built form.
-- Implement `use_indietypst_gfonts()` (scaffold-time download only).
-- Implement `dr_typst()` reporting versions, extension installability,
-  and a sample render.
-- Add one second template (letter or report variant) to validate that
-  the scaffolder is generic.
-
-Exit criterion: a fresh user can run
+Acceptance test (this is the iteration's gate, not a side check):
 
 ```r
-create_indietypst_package("acme")
-# install acme, then
-acme::install_indietypst_extension(project = "demo/")
-quarto::quarto_render("demo/report.qmd")
+# Throw away the current hand-built cynkradown.
+unlink("cynkradown", recursive = TRUE)
+
+# Regenerate it via the scaffolder.
+indietypst::create_indietypst_package("cynkradown")
+# Drop in assets (fonts, logos, defaults.yaml, preamble.typ,
+# pre_processor.R, design generators) from a snapshot.
+# Render A, B, C — PDFs match the Iteration 3 outputs.
 ```
 
-and get a PDF without editing anything by hand.
+If documents stop rendering or look different, indietypst is wrong, not
+the documents.
 
-## Phase 5 — Air-gap and migration (~1 week)
+## Iteration 5 — Second template via the scaffolder (~1 week)
+
+Goal: prove the framework is not an over-fit to cynkra. Build a second
+template *only* through `create_indietypst_package()` and assets —
+nobody hand-edits `indietypst` package internals during this iteration.
+
+- Pick a non-cynkra style: a generic letter, or a permissively-licensed
+  reproduction of a public report design.
+- Render at least one document with it.
+
+Acceptance: PDF reviewed. Any required hand-edits to `indietypst`
+itself are tasks for a follow-up iteration; the iteration *passes*
+only if the scaffolder + assets were enough.
+
+## Iteration 6 — Air-gapped and document migration (~1 week)
 
 Goal: brown-field flow.
 
-- Wire `quarto call typst-gather` into a `bootstrap_indietypst_project()`
-  helper so Typst registry packages, fonts, and Quarto caches are staged
-  on a networked machine.
-- Implement font system fallback (declared font stack, brand → bundled).
-- Build `port_rmd_to_qmd()` and run it on a real indiedown user's
-  archive (cynkra reports). Document residual manual steps.
+- `bootstrap_indietypst_project()` runs `quarto call typst-gather` and
+  primes Quarto's caches. See
+  [design.md goal 6](design.md).
+- `port_rmd_to_qmd()` mechanically converts an indiedown `.Rmd` to a
+  `.qmd` against the equivalent `indietypst` template. Run it on the
+  three documents from Iterations 1–3 and confirm the renders still
+  match. (Documents A, B, C were converted by hand earlier; we are
+  validating the automated conversion against a known-good target.)
 
-UX checkpoint:
+Acceptance:
 
-- Render a ported document on a fully air-gapped machine. Reviewer
-  confirms output matches.
+- All three documents render successfully on a machine with no network
+  access (post-bootstrap).
+- `port_rmd_to_qmd()` produces a `.qmd` that renders to a PDF
+  acceptably close to the hand-converted version.
 
-Exit criterion: documented end-to-end migration of one real cynkra
-document, plus one offline-render reproduction.
-
-## Phase 6 — Hardening and docs (~1 week)
+## Iteration 7 — Hardening and docs (~1 week)
 
 Goal: ship-ready.
 
 - Vignettes mirroring indiedown: `vignette("indietypst")`,
-  `vignette("walkthrough")`, `vignette("customize")`.
-- Tests covering the scaffolder, install/check helpers, diagnostic, and
-  one full render per template.
-- CI: render cynkradown and the second template on every PR; compare
-  against committed reference PDFs (visual diff).
-- CRAN-readiness check.
+  `vignette("walkthrough")`, `vignette("customize")`. Walkthrough is
+  a guided replay of Iterations 1–3 with simplified assets.
+- Tests covering scaffolder, install/check, diagnostic, and one full
+  render per template.
+- CI: render `cynkradown` (A, B, C) and the second template on every
+  PR; visual-diff against committed reference PDFs.
+- CRAN-readiness pass.
+- Close (or explicitly punt) the open questions in
+  [design.md](design.md).
 
-Exit criterion: green CI on a clean install; one external user (a cynkra
-employee not on the project) successfully creates and renders a template
-following only the vignettes.
+Acceptance: green CI on a clean machine; one external user (a cynkra
+employee not on the project) creates and renders a template following
+only the vignettes.
+
+## UX assessment
+
+Because every iteration ends in a side-by-side PDF review against a real
+indiedown-rendered original, UX assessment is continuous, not a separate
+checkpoint. The standing format:
+
+- 30–45 min review at the end of each iteration.
+- One non-author reviewer (designer preferred when available; cynkra
+  document author for content-fidelity questions).
+- Both PDFs printed on A4 *and* shown on screen; reviewer marks deltas
+  in three buckets: brand-correct, acceptable, must-fix.
+- Outcomes appended to `cynkradown/NOTES.md` (Iterations 1–3) and to
+  `indietypst/NOTES.md` (Iterations 4+).
 
 ## Cross-cutting
 
-- **Review cadence:** UX checkpoints at the end of P1, P2, P3, P5. Each
-  is a 30–60 min session with one non-author reviewer; outcomes
-  committed to the relevant `docs/*.md`.
-- **Definition of v1:** Phase 6 exit criterion met, plus the seven open
-  questions in [design.md](design.md) closed (or explicitly punted with
-  a written rationale).
+- **Source of truth for "real documents":** a small archive in
+  `cynkradown/inst/examples/` containing the original `.Rmd`, its
+  indiedown-rendered PDF, the converted `.qmd`, and the new PDF. Every
+  iteration adds at least one entry.
+- **Definition of v1:** Iteration 7 acceptance met, plus the open
+  questions in [design.md](design.md) closed or explicitly punted.
 - **What we will not build before v1:** HTML/EPUB/Word backends; bundled
-  Typst installer; web preview; template gallery; Typst-package authoring
-  tooling. (See [design.md § Non-goals](design.md).)
+  Typst installer; web preview; template gallery; Typst-package
+  authoring tooling. (See [design.md § Non-goals](design.md).)
 
 ## Risk register
 
 | Risk | Mitigation |
 |---|---|
-| Team underestimates Typst learning curve | Phase 0 is real; do not skip. |
-| Premature abstraction | P1 forbids R/Quarto. P2 forbids the scaffolder. |
-| `pre_processor.R` execution surface unsuitable | Prototype both Quarto pre-render *and* Lua filter in P3 before deciding. |
+| Team blocks on Typst syntax in Iteration 1 | Pair-program; pick the simplest Document A; copy heavily from `quarto-ext/typst-templates/dept-news`. |
+| Premature framework extraction | Iteration 4 is *not allowed* until three documents render through `cynkradown`. |
+| `cynkradown` over-fits the framework | Iteration 5 explicitly forbids hand-edits to `indietypst`; second template proves generalization. |
+| `pre_processor.R` execution surface (Quarto pre-render vs. Lua filter) chosen wrong | Iteration 2 prototypes both before deciding. |
 | Quarto/Typst version churn | Pin versions in `dr_typst()` and CI. |
-| `cynkradown` over-fits the framework | A second template is required from P4 onward. |
-| Air-gapped story slips | P5 has a hard exit gate; do not declare v1 without an offline render. |
+| Air-gapped story slips | Iteration 6 has a hard offline-render gate; v1 not declared without it. |
+| Document migration looks impractical | If `port_rmd_to_qmd()` cannot get acceptably close in Iteration 6, demote to a documented manual procedure rather than blocking v1. |
