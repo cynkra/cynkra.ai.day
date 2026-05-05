@@ -47,6 +47,7 @@ Outside of this, experiment, feel free to give your own spin to the workflow.
     * Interrogate clickup chats from claude
     * Interrogate your email from claude
     * Interrogate your calendar from claude
+    * Wrap https://github.com/jolars/panslate from R to provide a translation tool for documents that's an alternative to DeepL (https://docs.ropensci.org/babeldown/)
 
 ## Setup
 
