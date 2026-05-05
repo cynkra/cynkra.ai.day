@@ -1,0 +1,12 @@
+Package: baseRAnalysis
+Title: Analysis of Base R Source Code via Tree-Sitter
+Version: 0.0.1
+Description: Shallow-clones wch/r-source and uses tree-sitter to produce a
+    single report.md packed with facts about R's C and R internals.
+Imports:
+    treesitter,
+    treesitter.r,
+    treesitter.c,
+    fs,
+    dplyr,
+    glue
