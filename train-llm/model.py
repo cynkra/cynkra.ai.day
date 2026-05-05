@@ -26,6 +26,7 @@ class GPTConfig:
     n_layer: int           # number of transformer blocks
     n_head: int            # attention heads (must divide n_embd)
     n_embd: int            # model / embedding dimension
+    dropout: float = 0.0   # 0 disables dropout entirely (no perf cost)
 
 
 def _additive_causal_mask(T: int) -> mx.array:
@@ -46,6 +47,8 @@ class CausalSelfAttention(nn.Module):
         # fused QKV projection
         self.qkv = nn.Linear(cfg.n_embd, 3 * cfg.n_embd, bias=False)
         self.proj = nn.Linear(cfg.n_embd, cfg.n_embd, bias=False)
+        self.attn_drop = nn.Dropout(cfg.dropout) if cfg.dropout > 0 else None
+        self.resid_drop = nn.Dropout(cfg.dropout) if cfg.dropout > 0 else None
         # mask is built on-the-fly per forward to avoid being treated as a
         # learnable parameter by the optimizer
 
@@ -61,9 +64,14 @@ class CausalSelfAttention(nn.Module):
         att = (q @ k.transpose(0, 1, 3, 2)) * self.scale
         att = att + _additive_causal_mask(T)                # broadcast over (B, n_head)
         att = mx.softmax(att, axis=-1)
+        if self.attn_drop is not None:
+            att = self.attn_drop(att)
         y = att @ v                                         # (B, n_head, T, head_dim)
         y = y.transpose(0, 2, 1, 3).reshape(B, T, C)        # merge heads
-        return self.proj(y)
+        y = self.proj(y)
+        if self.resid_drop is not None:
+            y = self.resid_drop(y)
+        return y
 
 
 class MLP(nn.Module):
@@ -71,9 +79,13 @@ class MLP(nn.Module):
         super().__init__()
         self.c_fc = nn.Linear(cfg.n_embd, 4 * cfg.n_embd)
         self.c_proj = nn.Linear(4 * cfg.n_embd, cfg.n_embd)
+        self.drop = nn.Dropout(cfg.dropout) if cfg.dropout > 0 else None
 
     def __call__(self, x: mx.array) -> mx.array:
-        return self.c_proj(nn.gelu(self.c_fc(x)))
+        x = self.c_proj(nn.gelu(self.c_fc(x)))
+        if self.drop is not None:
+            x = self.drop(x)
+        return x
 
 
 class Block(nn.Module):
@@ -96,6 +108,7 @@ class GPT(nn.Module):
         self.cfg = cfg
         self.tok_emb = nn.Embedding(cfg.vocab_size, cfg.n_embd)
         self.pos_emb = nn.Embedding(cfg.ctx_len, cfg.n_embd)
+        self.emb_drop = nn.Dropout(cfg.dropout) if cfg.dropout > 0 else None
         self.blocks = [Block(cfg) for _ in range(cfg.n_layer)]
         self.ln_f = nn.LayerNorm(cfg.n_embd)
         # output head; not tied to tok_emb to keep code simple
@@ -107,6 +120,8 @@ class GPT(nn.Module):
         assert T <= self.cfg.ctx_len, f"sequence {T} > ctx_len {self.cfg.ctx_len}"
         pos = mx.arange(0, T)
         x = self.tok_emb(idx) + self.pos_emb(pos)
+        if self.emb_drop is not None:
+            x = self.emb_drop(x)
         for block in self.blocks:
             x = block(x)
         x = self.ln_f(x)

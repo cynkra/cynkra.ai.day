@@ -4,8 +4,8 @@
 
 - [x] 1.1 ~~Decide code location~~ — locked: container `/workspace/cynkra.ai.day/train-llm/` ↔ host `~/git/cynkra/cynkra.ai.day/train-llm/`
 - [x] 1.2 ~~Add .gitignore~~ — done as project-local `train-llm/.gitignore` (cleaner than touching cynkra.ai.day root); covers `.venv/`, data artifacts, checkpoints, logs
-- [ ] 1.3 (host) `cd ~/git/cynkra/cynkra.ai.day/train-llm && python3 -m venv .venv && source .venv/bin/activate`
-- [ ] 1.4 (host) `pip install -r requirements.txt`  *(file already created with `mlx`, `mlx-lm`, `tokenizers`, `numpy`)*
+- [x] 1.3 (host) Created `.venv` and activated
+- [x] 1.4 (host) Installed `requirements.txt` — mlx 0.29.3, mlx-lm 0.29.1, tokenizers 0.22.2, numpy 2.0.2; `mx.default_device()` → `Device(gpu, 0)`
 - [x] 1.5 ~~Clone / study `mlx-examples/transformer_lm`~~ — written from memory + standard nanoGPT idioms; first-run on Mac may need small API patches (see HANDOVER.md "Things that might break")
 
 ## 2. Corpus
@@ -24,10 +24,10 @@
 
 - [x] 3.1 Compared BPE at vocab=1k / 2k / 4k via `data/faust/compare_vocab.py`. Result: 4k packs whole archaic words into single tokens (`'Mephistopheles'` → 1 token, `'ewig'`, `'schön'` → 1 token each); 2k keeps morpheme-ish splits (`'Mephistopheles'` → 6 tokens); 1k is too coarse (doesn't even merge `'nun'`). 2k is the right starting hypothesis; 4k worth trying if loss plateaus and we want richer per-token signal.
 - [x] 3.2 Implemented minimal MLX transformer (parametric `model.py` + `spike.py` Config A: 2 layers, embd=64, ctx=64, ~100k params)
-- [ ] 3.3 (host) `python spike.py` — runs 100 steps on the encoded train.bin, prints tokens/sec + peak RAM
+- [x] 3.3 (host) Ran `python spike.py`. A_small (2×2×64, ctx=64): 0.36M params, 160.7 steps/s, 0.33M tok/s, 125 MB peak. B_medium (4×4×128, ctx=128): 1.32M params, 28.2 steps/s, 0.12M tok/s, 612 MB peak. Loss after 100 steps: 5.74 / 5.19. First-try clean — no MLX API patches needed.
 - [x] 3.4 Spike script also runs Config B (4 layers, embd=128, ctx=128) — the 4× scale; user reads results in `python spike.py` output
-- [ ] 3.5 (host) Read `=== budget ===` block at end of `spike.py` output
-- [ ] 3.6 (host) Edit `train.py` CONFIG block with final dims; capture chosen config back into `design.md` § "Model architecture" and tick this
+- [x] 3.5 (host) Budget block: at B_medium throughput, 5-min budget = 34.6M tokens = **119× corpus epochs**. Way deep in "scale up" territory.
+- [x] 3.6 (host) Locked dims: `n_layer=6, n_head=8, n_embd=256, ctx_len=256`, batch=32, n_steps=1000 → 5.82M params. Captured back into `design.md § Model architecture`.
 
 ## 4. Model
 
@@ -36,7 +36,7 @@
 - [x] 4.1 Implemented `nn.Embedding` for tokens + learned positional embedding (`model.py` `GPT.__init__`)
 - [x] 4.2 Implemented Transformer block: pre-LN + multi-head causal self-attention + residual; pre-LN + MLP (4× expansion, GELU) + residual (`Block`, `CausalSelfAttention`, `MLP`)
 - [x] 4.3 Stacked N blocks + final LayerNorm + linear output head (`GPT.__call__`)
-- [ ] 4.4 (host) First run of `python spike.py` exercises the forward pass end-to-end — counts as the dummy-batch shape verification
+- [x] 4.4 (host) Spike's first forward pass exercised model end-to-end at two configs without shape errors — dummy-batch verification done.
 
 ## 5. Training
 
@@ -45,17 +45,17 @@
 - [x] 5.1 Implemented training step: `loss_fn` + `nn.value_and_grad` + `optim.AdamW` + `mx.eval(model.parameters(), opt.state)` (in both `spike.py` and `train.py`)
 - [x] 5.2 Implemented `make_batcher` that draws random windows from `np.memmap`'d `train.bin`/`val.bin` (`spike.py` and `train.py`)
 - [x] 5.3 Implemented periodic train + val loss logging at `LOG_EVERY` / `EVAL_EVERY` steps (`train.py`)
-- [ ] 5.4 (host) `python spike.py` is the smoke run — verifies nothing explodes before committing to a full training run
-- [ ] 5.5 (host) `python train.py` — full training, ≤5 min, verify loss decreases
-- [ ] 5.6 (host) `train.py` saves to `checkpoints/model.safetensors` + `config.json` at end — verify file lands
+- [x] 5.4 (host) Spike smoke-run passed — both configs stepped without errors, loss decreased monotonically.
+- [x] 5.5 (host) `python train.py` — 1000 steps in 262.1s (4m22s, 3.8 steps/s), train_loss 7.6 → 3.51, val_loss 4.96 → 4.16. Mild val gap (~0.65) by end = expected pure-Faust overfit.
+- [x] 5.6 (host) Saved: `checkpoints/model.safetensors` and `checkpoints/config.json`.
 
 ## 6. Sampling
 
 > Implementation in `sample.py`. Execution on Mac.
 
 - [x] 6.1 Implemented greedy token-by-token generation with sliding-window context cropping (`sample.py` `greedy_generate`)
-- [ ] 6.2 (host) `python sample.py "Habe nun, ach! Philosophie"` — eyeball output for Goethe-likeness
-- [ ] 6.3 (host) Iterate on training duration / model dims if output is unsatisfying
+- [x] 6.2 (host) Sampled with `"Habe nun, ach! Philosophie"`, `"Mephistopheles spricht:"`, `"Verweile doch!"`. Output: recognizably Goethe-like — play structure with `MEPHISTOPHELES.` character labels, archaic phrasings (`Ich bin ich mir nicht`, `Und seid's nicht`, `Ich kannst du`), apostrophe contractions. Greedy decoding mode-collapses into repetition (expected from argmax); top-k/top-p (§7.2) is the natural fix.
+- [x] 6.3 (host) No iteration needed for first-run success criterion. If pursued: longer training, larger model, or stochastic sampling.
 
 ## 7. Stretch
 

@@ -61,7 +61,23 @@ Before implementing the real model, run a ~30-minute spike: smallest possible ML
 
 ### Model architecture
 
-Sized to the budget (16 GB RAM, ≤5 min/run): few layers, embedding dim ~128–256, context length 128–256, single-digit-millions parameters total. **Final numbers locked by the spike** — its job is to measure tokens/sec on the actual hardware and back into what fits the 5-minute budget.
+Sized to the budget (16 GB RAM, ≤5 min/run): few layers, embedding dim ~128–256, context length 128–256, single-digit-millions parameters total.
+
+**Locked by the spike** (M1/M2-class Apple Silicon, 16 GB):
+
+| Hyperparameter | Value |
+|---|---|
+| `n_layer` | 6 |
+| `n_head` | 8 |
+| `n_embd` | 256 |
+| `ctx_len` | 256 |
+| `batch_size` | 32 |
+| `vocab_size` | 2000 |
+| Parameters | 5.82M |
+| Optimizer | AdamW, lr=3e-4 |
+| Steps | 1000 |
+
+Spike B_medium (4×128, ctx=128) measured 0.12M tok/s = 119× corpus epochs in 5 min — well into "scale up" territory. Bumped to ~10M-budget config above; actual 5.82M params at ~3.8 steps/s, ctx=256, gave a 4m22s real run that took train_loss 7.6 → 3.51 and val_loss 4.96 → 4.16. Val gap (~0.65 by end) confirms the expected mild overfit on pure Faust.
 
 ## Risks / Trade-offs
 
@@ -71,7 +87,7 @@ Sized to the budget (16 GB RAM, ≤5 min/run): few layers, embedding dim ~128–
 
 ## Open Questions
 
-All design-level questions resolved. Remaining unknowns are empirical and resolved by the spike (tasks §3):
+All design-level questions resolved. Spike + first-run results closed the empirical unknowns:
 
-- BPE vocab size (~2k starting hypothesis)
-- Exact model dims and context length
+- BPE vocab size: **2k** (locked, see §Tokenizer)
+- Model dims and context length: **6×8×256, ctx=256, 5.82M params** (locked, see §Model architecture)
