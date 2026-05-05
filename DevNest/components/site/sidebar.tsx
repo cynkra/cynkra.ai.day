@@ -181,6 +181,7 @@ function ProfileMenu({ viewer }: { viewer: Viewer }) {
         <DropdownMenuTrigger asChild>
           <button
             type="button"
+            aria-label="Profile menu"
             className="hover:bg-[var(--color-hover)] flex w-full items-center gap-2.5 rounded p-1.5 text-left transition-colors"
           >
             <Avatar className="size-7">
