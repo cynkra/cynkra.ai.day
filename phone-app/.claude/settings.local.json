@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run *)",
+      "Bash(openspec status *)",
+      "Bash(openspec instructions *)",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(f'Progress: {d[\\\\\"progress\\\\\"][\\\\\"complete\\\\\"]}/{d[\\\\\"progress\\\\\"][\\\\\"total\\\\\"]} tasks complete'\\)\")"
+    ]
+  }
+}

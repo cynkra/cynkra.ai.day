@@ -1,0 +1,13 @@
+{
+  "name": "@phone-app/web",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "echo 'web client scaffolded in section 8' && exit 0",
+    "typecheck": "echo 'web client scaffolded in section 8' && exit 0"
+  },
+  "dependencies": {
+    "@phone-app/shared": "*"
+  }
+}

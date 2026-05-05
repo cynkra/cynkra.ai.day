@@ -4,3 +4,31 @@
 .httr-oauth
 .DS_Store
 .quarto
+
+# Node / TypeScript
+node_modules
+dist
+build
+.next
+coverage
+*.tsbuildinfo
+
+# Env
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+npm-debug.log*
+
+# IDE
+.vscode
+.idea
+
+# iOS / Xcode
+ios/build
+ios/DerivedData
+ios/*.xcworkspace/xcuserdata
+ios/*.xcodeproj/xcuserdata
+ios/*.xcodeproj/project.xcworkspace/xcuserdata

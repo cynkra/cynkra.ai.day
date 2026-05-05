@@ -1,20 +1,20 @@
 ## 1. Project setup
 
-- [ ] 1.1 Create directory layout under `phone-app/`: `phone-app/ios/`, `phone-app/backend/`, `phone-app/web/`, `phone-app/shared/`
-- [ ] 1.2 Initialize TypeScript workspace at `phone-app/` (pnpm or npm) with sub-packages for `backend`, `web`, and `shared`
-- [ ] 1.3 In `phone-app/shared/`, define the canonical card and deck types (mirrors the schema from `card-content` and `deck-management` specs), including `enrichment_mode` on `Card` and `default_enrichment_mode` on `Deck`; export `schema_version` constant
-- [ ] 1.4 Set up linting, formatting, and a single CI script that builds backend, web, and shared
+- [x] 1.1 Create directory layout under `phone-app/`: `phone-app/ios/`, `phone-app/backend/`, `phone-app/web/`, `phone-app/shared/`
+- [x] 1.2 Initialize TypeScript workspace at `phone-app/` (pnpm or npm) with sub-packages for `backend`, `web`, and `shared`
+- [x] 1.3 In `phone-app/shared/`, define the canonical card and deck types (mirrors the schema from `card-content` and `deck-management` specs), including `enrichment_mode` on `Card` and `default_enrichment_mode` on `Deck`; export `schema_version` constant
+- [x] 1.4 Set up linting, formatting, and a single CI script that builds backend, web, and shared
 
 ## 2. Backend foundations
 
-- [ ] 2.1 Scaffold an Express (or Fastify) TypeScript service in `phone-app/backend/`
-- [ ] 2.2 Add Postgres + a migration tool (e.g. `node-pg-migrate` or `drizzle-kit`); create initial migration with tables: `users`, `auth_methods`, `passkey_credentials`, `magic_link_tokens`, `decks`, `cards`, `llm_usage`, `external_usage`
-- [ ] 2.3 Implement JWT issuance and verification middleware (rotating signing key); reject unauthenticated requests with HTTP 401; all auth flows mint the same JWT shape
-- [ ] 2.4 Implement Sign in with Apple: `POST /auth/apple` exchanging the Apple identity token for a JWT and creating/linking the `auth_methods` row
-- [ ] 2.5 Implement Google OAuth: `GET /auth/google/start` and `GET /auth/google/callback` (PKCE), creating/linking the `auth_methods` row and minting a JWT
-- [ ] 2.6 Implement passkey (WebAuthn) registration and authentication: `POST /auth/passkey/register/options`, `POST /auth/passkey/register/verify`, `POST /auth/passkey/login/options`, `POST /auth/passkey/login/verify`; persist credentials in `passkey_credentials`
-- [ ] 2.7 Implement magic-link fallback: `POST /auth/request-link` and `GET /auth/verify` issuing a JWT bound to the user
-- [ ] 2.8 Add per-user data isolation: every query that touches `decks` or `cards` MUST filter by `owner_id` derived from the JWT; cross-user access returns HTTP 404
+- [x] 2.1 Scaffold an Express (or Fastify) TypeScript service in `phone-app/backend/`
+- [x] 2.2 Add Postgres + a migration tool (e.g. `node-pg-migrate` or `drizzle-kit`); create initial migration with tables: `users`, `auth_methods`, `passkey_credentials`, `magic_link_tokens`, `decks`, `cards`, `llm_usage`, `external_usage`
+- [x] 2.3 Implement JWT issuance and verification middleware (rotating signing key); reject unauthenticated requests with HTTP 401; all auth flows mint the same JWT shape
+- [x] 2.4 Implement Sign in with Apple: `POST /auth/apple` exchanging the Apple identity token for a JWT and creating/linking the `auth_methods` row
+- [x] 2.5 Implement Google OAuth: `GET /auth/google/start` and `GET /auth/google/callback` (PKCE), creating/linking the `auth_methods` row and minting a JWT
+- [x] 2.6 Implement passkey (WebAuthn) registration and authentication: `POST /auth/passkey/register/options`, `POST /auth/passkey/register/verify`, `POST /auth/passkey/login/options`, `POST /auth/passkey/login/verify`; persist credentials in `passkey_credentials`
+- [x] 2.7 Implement magic-link fallback: `POST /auth/request-link` and `GET /auth/verify` issuing a JWT bound to the user
+- [x] 2.8 Add per-user data isolation: every query that touches `decks` or `cards` MUST filter by `owner_id` derived from the JWT; cross-user access returns HTTP 404
 
 ## 3. Card and deck APIs (sync-service + card-content + deck-management)
 
