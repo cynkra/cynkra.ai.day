@@ -202,6 +202,112 @@ void GEText(double x, double y, const char * const str, cetype_t enc,
 	    enc2 = (gc->fontface == 5) ? CE_SYMBOL : enc;
 ```
 
+## Duplicate Function Names
+
+**349 C function names** are defined in more than one file (typically `static` helpers reimplemented per translation unit). Top repeats:
+
+| Function | Definitions | Files |
+| --- | --- | --- |
+| if | 59 | src/extra/intl/printf-parse.c, src/extra/intl/vasnprintf.c, src/extra/tre/regexec.c, src/extra/tre/tre-match-backtrack.c, src/extra/tre/tre-parse.c, src/extra/trio/trio.c, src/include/Rinlinedfuns.h, src/library/grDevices/src/cairo/cairoBM.c, src/library/graphics/src/par.c, src/main/agrep.c, src/main/builtin.c, src/main/grep.c, src/main/printutils.c, src/modules/X11/dataentry.c, src/nmath/lgammacor.c |
+| TRIO_ARGS2 | 51 | src/extra/trio/trio.c, src/extra/trio/trionan.c, src/extra/trio/triostr.c |
+| operator | 41 | src/extra/graphapp/graphapp.h, src/extra/graphapp/str.h |
+| TRIO_ARGS1 | 27 | src/extra/trio/trio.c, src/extra/trio/trionan.c, src/extra/trio/triostr.c |
+| TRIO_ARGS3 | 27 | src/extra/trio/trio.c, src/extra/trio/triostr.c |
+| TRIO_ARGS4 | 19 | src/extra/trio/trio.c, src/extra/trio/triostr.c |
+| main | 12 | src/extra/trio/trionan.c, src/gnuwin32/front-ends/R.c, src/gnuwin32/front-ends/RSetReg.c, src/gnuwin32/front-ends/Rfe.c, src/gnuwin32/front-ends/open.c, src/gnuwin32/front-ends/rcmd.c, src/gnuwin32/front-ends/rpwd.c, src/gnuwin32/front-ends/rtest.c, src/gnuwin32/installer/uuidgen.c, src/main/Rmain.c, src/nmath/standalone/test.c, src/unix/Rscript.c |
+| TRIO_VARGS3 |  7 | src/extra/trio/trio.c |
+| con_cleanup |  6 | src/library/tools/src/gramRd.c, src/main/connections.c, src/main/dcf.c, src/main/deparse.c, src/main/saveload.c, src/main/serialize.c |
+| SetFont |  5 | src/library/grDevices/src/devPS.c, src/library/grDevices/src/devPicTeX.c, src/library/grDevices/src/devWindows.c, src/main/plotmath.c, src/modules/X11/devX11.c |
+| TRIO_ARGS5 |  5 | src/extra/trio/trio.c |
+| TRIO_ARGS6 |  5 | src/extra/trio/trio.c |
+| R_Suicide |  4 | src/gnuwin32/front-ends/RSetReg.c, src/gnuwin32/front-ends/rcmdfn.c, src/gnuwin32/system.c, src/unix/system.c |
+| TRIO_VARGS4 |  4 | src/extra/trio/trio.c |
+| glthread_recursive_lock_destroy |  4 | src/extra/intl/lock.c |
+| glthread_recursive_lock_init |  4 | src/extra/intl/lock.c |
+| glthread_recursive_lock_lock |  4 | src/extra/intl/lock.c |
+| glthread_recursive_lock_unlock |  4 | src/extra/intl/lock.c |
+| ntohl |  4 | src/extra/xdr/xdr_mem.c, src/extra/xdr/xdr_stdio.c |
+| yy_reduce_print |  4 | src/extra/intl/plural.c, src/library/tools/src/gramLatex.c, src/library/tools/src/gramRd.c, src/main/gram.c |
+
+**318 R function names** are defined more than once across the R library source:
+
+| Function | Definitions | Files |
+| --- | --- | --- |
+| f | 126 | doc/manual/R-intro.R, src/library/base/R/scale.R, src/library/compiler/tests/basics.R, src/library/compiler/tests/curexpr.R, src/library/compiler/tests/envir.R, src/library/compiler/tests/loop.R, src/library/compiler/tests/srcref.R, src/library/compiler/tests/switch.R, src/library/grid/R/grob.R, src/library/methods/R/RMethodUtils.R, src/library/methods/R/as.R, src/library/stats/R/free1way.R, src/library/stats/R/linkfun.R, src/library/stats/demo/nlm.R, src/library/stats4/R/mle.R, src/library/tools/R/bibtools.R, src/library/tools/R/utils.R, src/library/utils/R/citation.R, src/library/utils/R/news.R, tests/Pkgs/parseDataEx/R/a.R, tests/classes-methods.R, tests/eval-etc.R, tests/reg-S4.R, tests/reg-encodings.R, tests/reg-tests-1a.R, tests/reg-tests-1b.R, tests/reg-tests-1c.R, tests/reg-tests-1d.R, tests/reg-tests-1e.R, tests/reg-tests-2.R, tests/reg-tests-3.R, tests/reg-translation.R |
+| g |  39 | src/library/compiler/tests/basics.R, src/library/compiler/tests/loop.R, src/library/compiler/tests/srcref.R, src/library/compiler/tests/switch.R, src/library/tools/R/bibtools.R, src/library/utils/R/citation.R, tests/Pkgs/parseDataEx/R/b.R, tests/eval-etc.R, tests/reg-S4.R, tests/reg-tests-1a.R, tests/reg-tests-1b.R, tests/reg-tests-1d.R, tests/reg-tests-1e.R, tests/reg-tests-2.R |
+| recurse |  17 | src/library/tools/R/Rd.R, src/library/tools/R/RdConv2.R, src/library/tools/R/bibtools.R, src/library/tools/R/doitools.R, src/library/tools/R/urltools.R, src/library/utils/R/aspell.R, src/library/utils/R/sourceutils.R |
+| .fmt |  15 | src/library/base/R/namespace.R, src/library/tools/R/QC.R |
+| fun |  15 | src/library/base/R/lazyload.R, src/library/graphics/R/plot.design.R, src/library/methods/R/SClasses.R, src/library/stats/R/constrOptim.R, src/library/tools/R/QC.R, src/library/tools/R/Rd.R, src/library/tools/R/bibtools.R, src/library/tools/R/check.R, src/library/tools/R/utils.R, src/library/utils/R/citation.R, tests/reg-tests-1c.R, tests/reg-tests-1d.R |
+| h |  15 | src/library/compiler/tests/loop.R, src/library/compiler/tests/switch.R, src/library/stats/demo/nlm.R, tests/Pkgs/parseDataEx/R/b.R, tests/eval-etc.R, tests/reg-tests-1a.R, tests/reg-tests-1d.R, tests/reg-tests-1e.R |
+| foo |  14 | src/library/methods/tests/basicRefClass.R, src/library/tools/R/QC.R, tests/Embedding/error.R, tests/Embedding/foo.R, tests/Pkgs/exSexpr/R/stuff.R, tests/ok-errors.R, tests/reg-tests-1a.R, tests/reg-tests-1d.R, tests/reg-tests-1e.R, tests/reg-tests-2.R |
+| fn |  13 | src/library/stats/R/free1way.R, tests/reg-tests-1c.R, tests/reg-tests-1d.R, tests/reg-tests-1e.R |
+| Usage |  11 | share/R/REMOVE.R, src/library/tools/R/Rd2pdf.R, src/library/tools/R/Rprof.R, src/library/tools/R/build.R, src/library/tools/R/check.R, src/library/tools/R/install.R, src/library/tools/R/testing.R, src/library/utils/R/Sweave.R |
+| f2 |  11 | src/library/methods/tests/testGroupGeneric.R, tests/classes-methods.R, tests/reg-tests-1b.R, tests/reg-tests-1d.R, tests/reg-tests-1e.R, tests/reg-tests-2.R |
+| fx |  11 | src/library/base/R/zzz.R, src/library/grDevices/R/colorstuff.R, src/library/grDevices/R/hcl.colors.R, src/library/stats/demo/nlm.R |
+| linkfun |  11 | src/library/stats/R/family.R, src/library/stats/R/linkfun.R |
+| .onLoad |  10 | src/library/compiler/R/cmp.R, src/library/grDevices/R/zzz.R, src/library/grid/R/zzz.R, src/library/methods/R/zzz.R, src/library/parallel/R/zzz.R, src/library/stats/R/zzz.R, src/library/tcltk/R/unix/zzzstub.R, src/library/tcltk/R/windows/zzz.R, src/library/tools/R/zzz.R, src/library/utils/R/zzz.R |
+| dev.resids |  10 | src/library/stats/R/family.R |
+| linkinv |  10 | src/library/stats/R/family.R |
+| mu.eta |  10 | src/library/stats/R/family.R |
+| valideta |  10 | src/library/stats/R/family.R |
+| validmu |  10 | src/library/stats/R/family.R |
+| .onUnload |   8 | src/library/grDevices/R/zzz.R, src/library/grid/R/zzz.R, src/library/methods/R/zzz.R, src/library/parallel/R/zzz.R, src/library/splines/R/zzz.R, src/library/stats/R/zzz.R, src/library/tcltk/R/windows/zzz.R, src/library/tools/R/zzz.R |
+| HersheyLabel |   8 | src/library/grid/tests/clippaths.R, src/library/grid/tests/compositing.R, src/library/grid/tests/glyphs.R, src/library/grid/tests/groups.R, src/library/grid/tests/masks.R, src/library/grid/tests/nesting.R, src/library/grid/tests/paths.R, src/library/grid/tests/patterns.R |
+
+## Functions Never Called Within r-source
+
+These functions have no call site anywhere in the r-source tree. For R functions this is expected — they are the public API, called by users and packages. For C functions (excluding `do_*` dispatch handlers), it may indicate dead code, or functions exposed only through the R C API for package authors.
+
+**1915 C functions** (non-`do_*`) have no call site in r-source. Sample:
+
+| Function | File | Lines |
+| --- | --- | --- |
+| d1fcn_dum | [src/appl/uncmin.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/appl/uncmin.c) |  5 |
+| d2fcn_dum | [src/appl/uncmin.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/appl/uncmin.c) |  5 |
+| optif0 | [src/appl/uncmin.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/appl/uncmin.c) | 40 |
+| blas_dummy | [src/extra/blas/blas00.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/blas/blas00.c) | 83 |
+| newpoint | [src/extra/graphapp/arith.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/graphapp/arith.c) |  8 |
+| newrect | [src/extra/graphapp/arith.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/graphapp/arith.c) | 10 |
+| addpt | [src/extra/graphapp/arith.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/graphapp/arith.c) |  6 |
+| subpt | [src/extra/graphapp/arith.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/graphapp/arith.c) |  6 |
+| mulpt | [src/extra/graphapp/arith.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/graphapp/arith.c) |  6 |
+| divpt | [src/extra/graphapp/arith.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/graphapp/arith.c) |  6 |
+| rmove | [src/extra/graphapp/arith.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/graphapp/arith.c) |  6 |
+| raddpt | [src/extra/graphapp/arith.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/graphapp/arith.c) |  6 |
+| rsubpt | [src/extra/graphapp/arith.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/graphapp/arith.c) |  6 |
+| rmul | [src/extra/graphapp/arith.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/graphapp/arith.c) | 10 |
+| rdiv | [src/extra/graphapp/arith.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/graphapp/arith.c) | 10 |
+| rinr | [src/extra/graphapp/arith.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/graphapp/arith.c) |  9 |
+| clipr | [src/extra/graphapp/arith.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/graphapp/arith.c) | 19 |
+| private_delbitmap | [src/extra/graphapp/bitmaps.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/graphapp/bitmaps.c) |  5 |
+| loadbitmap | [src/extra/graphapp/bitmaps.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/graphapp/bitmaps.c) | 12 |
+| getbitmapdata | [src/extra/graphapp/bitmaps.c](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/extra/graphapp/bitmaps.c) | 34 |
+
+**2793 R functions** have no call site in r-source. Sample:
+
+| Function | File | Lines |
+| --- | --- | --- |
+| f.check | [doc/manual/R-exts.R](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/doc/manual/R-exts.R) |   5 |
+| cube1 | [doc/manual/R-exts.R](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/doc/manual/R-exts.R) |   1 |
+| stdError | [doc/manual/R-intro.R](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/doc/manual/R-intro.R) |   1 |
+| .make_R.iss | [src/gnuwin32/installer/JRins.R](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/gnuwin32/installer/JRins.R) | 152 |
+| .make_R.wxs | [src/gnuwin32/installer/WiXins.R](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/gnuwin32/installer/WiXins.R) | 294 |
+| menu.ttest | [src/gnuwin32/windlgs/R/windlgs.R](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/gnuwin32/windlgs/R/windlgs.R) |  13 |
+| menu.ttest2 | [src/gnuwin32/windlgs/R/windlgs.R](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/gnuwin32/windlgs/R/windlgs.R) |   5 |
+| menu.ttest3 | [src/gnuwin32/windlgs/R/windlgs.R](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/gnuwin32/windlgs/R/windlgs.R) |   1 |
+| .onAttach | [src/gnuwin32/windlgs/R/windlgs.R](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/gnuwin32/windlgs/R/windlgs.R) |  11 |
+| unix.time | [src/library/base/R/Defunct.R](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/library/base/R/Defunct.R) |   1 |
+| default.stringsAsFactors | [src/library/base/R/Defunct.R](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/library/base/R/Defunct.R) |   2 |
+| .__H__.cbind | [src/library/base/R/Defunct.R](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/library/base/R/Defunct.R) |   1 |
+| .__H__.rbind | [src/library/base/R/Defunct.R](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/library/base/R/Defunct.R) |   1 |
+| is.R | [src/library/base/R/Defunct.R](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/library/base/R/Defunct.R) |   1 |
+| `comment<-` | [src/library/base/R/New-Internal.R](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/library/base/R/New-Internal.R) |   1 |
+| logb | [src/library/base/R/New-Internal.R](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/library/base/R/New-Internal.R) |   1 |
+| factorial | [src/library/base/R/New-Internal.R](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/library/base/R/New-Internal.R) |   1 |
+| iconvlist | [src/library/base/R/New-Internal.R](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/library/base/R/New-Internal.R) |  21 |
+| `Encoding<-` | [src/library/base/R/New-Internal.R](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/library/base/R/New-Internal.R) |   1 |
+| libcurlVersion | [src/library/base/R/New-Internal.R](https://github.com/wch/r-source/blob/e25fb9abb931bc8c3fb387903e331aff36ef347a/src/library/base/R/New-Internal.R) |   1 |
+
 ## Old & Odd Comments
 
 There are **787 C comments** that mention a year between 1970 and 2005. The oldest:

@@ -339,7 +339,51 @@ dispatch_df <- bind_rows(
   tibble(Name = unique(r_primitives), Type = ".Primitive")
 ) |> arrange(Type, Name)
 
-# ── 5. Funny comments & interesting names ────────────────────────────────────
+# ── 5. Duplicates & uncalled functions ───────────────────────────────────────
+
+dup_c_fns <- c_fns_df |>
+  count(name, name = "definitions") |>
+  filter(definitions > 1L) |>
+  arrange(desc(definitions)) |>
+  left_join(
+    c_fns_df |> group_by(name) |>
+      summarise(files = paste(unique(file), collapse = ", "), .groups = "drop"),
+    by = "name"
+  ) |>
+  head(20L)
+
+dup_r_fns <- r_fns_df |>
+  count(name, name = "definitions") |>
+  filter(definitions > 1L) |>
+  arrange(desc(definitions)) |>
+  left_join(
+    r_fns_df |> group_by(name) |>
+      summarise(files = paste(unique(file), collapse = ", "), .groups = "drop"),
+    by = "name"
+  ) |>
+  head(20L)
+
+called_c <- unique(c_calls_all)
+uncalled_c <- c_fns_df |>
+  filter(!name %in% called_c, !grepl("^do_", name)) |>
+  distinct(name, .keep_all = TRUE) |>
+  select(Function = name, File = file, Lines = lines) |>
+  head(20L)
+
+called_r <- unique(r_calls_all)
+uncalled_r <- r_fns_df |>
+  filter(!name %in% called_r) |>
+  distinct(name, .keep_all = TRUE) |>
+  select(Function = name, File = file, Lines = lines) |>
+  head(20L)
+
+n_dup_c    <- nrow(c_fns_df |> count(name) |> filter(n > 1L))
+n_dup_r    <- nrow(r_fns_df |> count(name) |> filter(n > 1L))
+n_uncall_c <- nrow(c_fns_df |> filter(!name %in% called_c, !grepl("^do_", name)) |>
+                     distinct(name))
+n_uncall_r <- nrow(r_fns_df |> filter(!name %in% called_r) |> distinct(name))
+
+# ── 6. Funny comments & interesting names ────────────────────────────────────
 
 message("Mining funny comments and names ...")
 
@@ -503,6 +547,36 @@ report <- c(
   "```c",
   deep_snip,
   "```",
+  "",
+
+  "## Duplicate Function Names",
+  "",
+  glue("**{n_dup_c} C function names** are defined in more than one file (typically `static` helpers ",
+       "reimplemented per translation unit). Top repeats:"),
+  "",
+  md_table(dup_c_fns |> rename(Function = name, Definitions = definitions, Files = files)),
+  "",
+  glue("**{n_dup_r} R function names** are defined more than once across the R library source:"),
+  "",
+  md_table(dup_r_fns |> rename(Function = name, Definitions = definitions, Files = files)),
+  "",
+
+  "## Functions Never Called Within r-source",
+  "",
+  paste0(
+    "These functions have no call site anywhere in the r-source tree. ",
+    "For R functions this is expected — they are the public API, called by users and packages. ",
+    "For C functions (excluding `do_*` dispatch handlers), it may indicate dead code, ",
+    "or functions exposed only through the R C API for package authors."
+  ),
+  "",
+  glue("**{n_uncall_c} C functions** (non-`do_*`) have no call site in r-source. Sample:"),
+  "",
+  md_table(mutate(uncalled_c, File = gh_link(File))),
+  "",
+  glue("**{n_uncall_r} R functions** have no call site in r-source. Sample:"),
+  "",
+  md_table(mutate(uncalled_r, File = gh_link(File))),
   "",
 
   "## Old & Odd Comments",
