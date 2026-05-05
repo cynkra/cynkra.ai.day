@@ -1,0 +1,41 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(openspec status *)",
+      "Bash(openspec instructions *)",
+      "Bash(pnpm --version)",
+      "Bash(corepack enable *)",
+      "Bash(corepack prepare *)",
+      "Bash(xargs -I{} grep -l '\"packageManager\"' {})",
+      "Bash(pnpm add *)",
+      "Bash(pnpm dlx *)",
+      "Bash(pnpm typecheck *)",
+      "Bash(pnpm lint *)",
+      "Bash(pnpm dev *)",
+      "Bash(nvm install *)",
+      "Bash(nvm use *)",
+      "Bash(nvm alias *)",
+      "Bash(bash -c 'node --version')",
+      "Bash(node --version)",
+      "Bash(pnpm db:generate)",
+      "Bash(docker info *)",
+      "Bash(pnpm db:up)",
+      "Bash(docker exec *)",
+      "Bash(pnpm db:migrate)",
+      "Bash(pnpm db:down)",
+      "Bash(docker system *)",
+      "Bash(docker volume *)",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(f\\\\\"Progress: {d['progress']['complete']}/{d['progress']['total']}\\\\\"\\); print\\('---REMAINING SECTION 3:'\\); [print\\(t['id']+': '+t['description']\\) for t in d['tasks'] if not t['done'] and t['id'] in \\('16','17','18','19','20','21','22'\\)]\")",
+      "Bash(pnpm test *)",
+      "Bash(curl -s -o /dev/null -w \"HTTP %{http_code}\\\\nx-request-id: %header{x-request-id}\\\\n\" http://localhost:3000/)",
+      "Bash(curl -s -o /dev/null -H \"x-request-id: my-test-id-123456\" -w \"HTTP %{http_code}\\\\nx-request-id echoed: %header{x-request-id}\\\\n\" http://localhost:3000/)",
+      "Bash(curl -s -w \"\\\\nHTTP %{http_code}\\\\n\" http://localhost:3000/api/health)",
+      "Bash(curl -s -o /dev/null -w \"HTTP %{http_code}\\\\n\" http://localhost:3000/feed)",
+      "Bash(curl -s -o /dev/null -w \"HTTP %{http_code}\\\\n\" http://localhost:3000/me)",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(f\\\\\"Progress: {d['progress']['complete']}/{d['progress']['total']}\\\\\"\\)\")",
+      "Bash(pnpm exec *)",
+      "Bash(pnpm test:e2e)",
+      "Bash(openspec archive *)"
+    ]
+  }
+}

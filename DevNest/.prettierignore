@@ -1,0 +1,28 @@
+# build output
+.next
+dist
+build
+coverage
+out
+
+# deps & lockfiles
+node_modules
+pnpm-lock.yaml
+.pnpm-store
+
+# generated
+next-env.d.ts
+drizzle/meta
+
+# repo content not owned by the app
+openspec
+agents
+commands
+contexts
+hooks
+rules
+skills
+.claude
+.claude-plugin
+LICENSE
+README.md
