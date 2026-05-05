@@ -25,10 +25,3 @@ npm-debug.log*
 # IDE
 .vscode
 .idea
-
-# iOS / Xcode
-ios/build
-ios/DerivedData
-ios/*.xcworkspace/xcuserdata
-ios/*.xcodeproj/xcuserdata
-ios/*.xcodeproj/project.xcworkspace/xcuserdata

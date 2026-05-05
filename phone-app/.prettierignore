@@ -3,7 +3,7 @@ dist
 build
 .next
 coverage
-ios
 openspec
 .claude
 package-lock.json
+web/next-env.d.ts

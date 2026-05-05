@@ -2,12 +2,26 @@
   "name": "@phone-app/web",
   "version": "0.0.0",
   "private": true,
-  "type": "module",
   "scripts": {
-    "build": "echo 'web client scaffolded in section 8' && exit 0",
-    "typecheck": "echo 'web client scaffolded in section 8' && exit 0"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit",
+    "test": "echo 'no web tests yet' && exit 0"
   },
   "dependencies": {
-    "@phone-app/shared": "*"
+    "@phone-app/shared": "*",
+    "next": "16.2.4",
+    "react": "19.2.4",
+    "react-dom": "19.2.4"
+  },
+  "devDependencies": {
+    "@types/node": "^22",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.2.4",
+    "typescript": "^5"
   }
 }

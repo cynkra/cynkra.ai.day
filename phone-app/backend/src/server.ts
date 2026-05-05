@@ -5,6 +5,8 @@ import type { Config } from './config.js';
 import { createDb, type Db } from './db.js';
 import { registerAuthPlugin } from './auth/plugin.js';
 import { registerAuthRoutes } from './auth/routes.js';
+import { registerTokenRoutes } from './auth/token-routes.js';
+import { registerCardsRoutes } from './routes/cards.js';
 
 export interface AppDeps {
   config: Config;
@@ -36,6 +38,8 @@ export async function buildServer(config: Config, db?: Db): Promise<FastifyInsta
   app.get('/health', async () => ({ ok: true }));
 
   await registerAuthRoutes(app);
+  await registerTokenRoutes(app);
+  await registerCardsRoutes(app);
 
   return app;
 }

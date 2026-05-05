@@ -60,20 +60,22 @@
 
 ## 7. iOS app and Share Extension (clip-capture)
 
-- [ ] 7.1 Create the iOS app and Share Extension targets in Xcode under `phone-app/ios/`; configure a shared App Group container so the extension and main app share one local database
-- [ ] 7.2 Implement Share Extension that registers for plain-text, UTF-8 plain-text, RTF, and HTML UTIs; for HTML, extract visible text and discard the markup
-- [ ] 7.3 Implement a SQLite-backed local outbox in the App Group container; the Share Extension and main app both write new and updated records to the outbox before any network call
-- [ ] 7.4 Implement an outbox drainer in the main app: on app launch, on background refresh, and on network availability change, upload pending entries via the appropriate endpoint with idempotent client-supplied `id`s and exponential-backoff retries
-- [ ] 7.5 Implement local sync mirror: pull via `GET /sync?cursor=...` on app foreground; cache records to the SQLite store for offline read
-- [ ] 7.6 Implement SSE consumer: while the app is foregrounded, hold an open `GET /sync/stream` connection and trigger a cursor pull on each invalidation event
-- [ ] 7.7 Implement deck list, card list, and review UI on iOS so review (`Again`/`Hard`/`Good`/`Easy` grading) is possible on phone
-- [ ] 7.8 Add an enrichment-mode picker to the Share Extension UI (single tap to override deck default to `manual` / `external` / `llm`); persist the chosen mode on the outbox entry
-- [ ] 7.9 Add a "New card" form in the iOS main app for typing `source_text`, `translation`, `explanation` and choosing the deck and mode without going through the share sheet
-- [ ] 7.10 Add a per-card mode-change action (e.g. swipe action or detail-view control) that calls `PATCH /cards/:id` (via the outbox) to switch `enrichment_mode`; offer "Re-enrich now" as a separate action
+> **Superseded by `pivot-to-pwa-shortcut`.** The native iOS app and Share Extension are replaced by a PWA + Apple Shortcut. Do not implement these tasks; see `phone-app/openspec/changes/pivot-to-pwa-shortcut/` for the replacement plan.
+
+- [~] 7.1 ~~Create the iOS app and Share Extension targets in Xcode~~ [superseded by pivot-to-pwa-shortcut]
+- [~] 7.2 ~~Implement Share Extension that registers for plain-text, UTF-8 plain-text, RTF, and HTML UTIs~~ [superseded by pivot-to-pwa-shortcut]
+- [~] 7.3 ~~Implement a SQLite-backed local outbox in the App Group container~~ [superseded by pivot-to-pwa-shortcut]
+- [~] 7.4 ~~Implement an outbox drainer in the main app~~ [superseded by pivot-to-pwa-shortcut]
+- [~] 7.5 ~~Implement local sync mirror~~ [superseded by pivot-to-pwa-shortcut]
+- [~] 7.6 ~~Implement SSE consumer on iOS~~ [superseded by pivot-to-pwa-shortcut — the PWA's SSE consumer in section 8 covers iPhone usage]
+- [~] 7.7 ~~Implement deck list, card list, and review UI on iOS~~ [superseded by pivot-to-pwa-shortcut — review on iPhone happens in the PWA]
+- [~] 7.8 ~~Add an enrichment-mode picker to the Share Extension UI~~ [superseded by pivot-to-pwa-shortcut — mode override happens in the PWA after capture]
+- [~] 7.9 ~~Add a "New card" form in the iOS main app~~ [superseded by pivot-to-pwa-shortcut — covered by the PWA's "New card" form]
+- [~] 7.10 ~~Add a per-card mode-change action on iOS~~ [superseded by pivot-to-pwa-shortcut — covered by the PWA]
 
 ## 8. Web client (web-client)
 
-- [ ] 8.1 Scaffold Next.js app in `phone-app/web/` consuming `phone-app/shared/` types
+- [x] 8.1 Scaffold Next.js app in `phone-app/web/` consuming `phone-app/shared/` types
 - [ ] 8.2 Implement sign-in surface offering passkey (WebAuthn) as the primary affordance, Google OAuth as the secondary, and magic-link as the fallback; persist the JWT in an HTTP-only cookie
 - [ ] 8.3 Implement an IndexedDB-backed outbox; every write (create card, edit card, review, deck create/update/delete, manual entry) is persisted locally first and drained to the backend asynchronously with idempotent client-supplied `id`s and exponential-backoff retries
 - [ ] 8.4 Implement library view: list of decks grouped by topic; deck view: list of cards with visible distinction for `enriching` and `failed` statuses (with retry control on `failed`)
