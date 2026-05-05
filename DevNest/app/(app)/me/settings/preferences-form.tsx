@@ -36,13 +36,17 @@ export function PreferencesForm({ initial }: { initial: Preferences }) {
     if (typeof document !== "undefined") {
       const el = document.documentElement;
       if (key === "theme") {
-        // next-themes manages data-theme; we hand off to its API to keep
-        // the system/light/dark resolution consistent.
-        // Falls back to direct attribute write if next-themes isn't
-        // mounted (shouldn't happen, but defensive).
+        // Cookie is the source of truth; mirror it onto data-theme so
+        // every Tailwind dark variant re-evaluates immediately. For
+        // "system" we let the next SSR pass do the OS-preference upgrade
+        // (see app/layout.tsx) so the optimistic state stays "light".
         el.setAttribute(
           "data-theme",
-          value === "system" ? prefs.theme : (value as string),
+          value === "system"
+            ? window.matchMedia("(prefers-color-scheme: dark)").matches
+              ? "dark"
+              : "light"
+            : (value as string),
         );
       } else if (key === "density") {
         el.setAttribute("data-density", value as string);

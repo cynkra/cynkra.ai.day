@@ -1,9 +1,15 @@
 # DevNest — Defects (visual + interaction review)
 
+> **Status (2026-05-05): all 11 defects resolved.** Re-running the same
+> three Playwright specs that originally surfaced them now reports
+> 16/16 tests passing and 11/11 interaction probes `ok: true`. The
+> "Resolution" block on each defect below records what shipped and how
+> to reproduce the verification.
+
 **Captured:** 2026-05-05 via three Playwright specs:
 
 | Spec | What it does |
-|---|---|
+| --- | --- |
 | [tests/e2e/inspection.spec.ts](tests/e2e/inspection.spec.ts) | Walks 8 surfaces, captures HTTP / console / network / page errors and full-page screenshots → `test-results/inspection/` |
 | [tests/e2e/responsive-themes.spec.ts](tests/e2e/responsive-themes.spec.ts) | Sweeps 6 surfaces × {light, dark} × {desktop, mobile} → `test-results/responsive/` |
 | [tests/e2e/interactions.spec.ts](tests/e2e/interactions.spec.ts) | Probes 11 specific behaviours (keyboard shortcuts, theme toggle, settings flips, composer, sign-out) → `test-results/interactions/_findings.json` |
@@ -20,17 +26,17 @@ pnpm exec playwright test tests/e2e/inspection.spec.ts \
 
 ## Headline numbers
 
-| | Count |
-|---|---|
-| Surfaces walked | 8 light-desktop + 6 × {dark, mobile} = 26 |
-| HTTP / console / network / page errors | **0** |
-| Interaction probes that pass | 6/11 |
-| Interaction probes that fail | **5/11** |
-| Defects identified | 11 |
+| | Before fixes | After fixes |
+| --- | --- | --- |
+| Surfaces walked | 8 light-desktop + 6 × {dark, mobile} = 26 | unchanged |
+| HTTP / console / network / page errors | **0** | **0** |
+| Interaction probes that pass | 6/11 | **11/11** |
+| Interaction probes that fail | **5/11** | 0/11 |
+| Defects identified | 11 | 0 outstanding |
 
-The app is functionally clean (nothing throws, no broken navigations,
-no network errors). All defects are CSS / behaviour / cross-surface
-gaps.
+The app was already functionally clean (nothing throws, no broken
+navigations). All 11 defects were CSS / behaviour / cross-surface gaps
+and have now been closed.
 
 ---
 
@@ -43,13 +49,13 @@ gaps.
 
 ---
 
-## 🔴 D-1 — Default `<Button>` (primary variant) renders without fill
+## ✅ 🔴 D-1 — Default `<Button>` (primary variant) renders without fill
 
 **Symptom.** Every default-variant `<Button>` renders as plain text on
 the page background — no border, no fill. Affects every primary CTA:
 
 | Surface | Element |
-|---|---|
+| --- | --- |
 | `/` (home) | "Sign in" CTA |
 | `/signin` | "Continue with email" expansion toggle |
 | `/me/settings` | "Save changes" under Profile |
@@ -57,49 +63,43 @@ the page background — no border, no fill. Affects every primary CTA:
 | `/feed`, `/explore`, `/search` (right rail) | "Follow" / "Sign in to follow" |
 | Sidebar | "New post" (signed-in) and "Sign in" (signed-out) |
 
-**Root cause.** [app/globals.css](app/globals.css) declares the design
+**Root cause.** [app/globals.css](app/globals.css) declared the design
 tokens in `@theme` as `--color-bg`, `--color-ink`, `--color-accent`,
 etc. The shadcn primitive aliases (`--primary`, `--card`, `--muted`,
-`--ring`, …) are declared in a separate `:where(:root)` block.
+`--ring`, …) were declared in a separate `:where(:root)` block.
 
 In Tailwind v4, **utility classes like `bg-primary` are generated only
 from `--color-*` names inside `@theme`**. The `--primary` variable in
 `:root` is a CSS variable, not a theme token — so `bg-primary` on
-shadcn's Button compiles to an empty rule.
+shadcn's Button compiled to an empty rule.
 
-**Fix.** Move the shadcn aliases into `@theme` as `--color-*` tokens.
+**Resolution.** Moved the shadcn aliases into `@theme` as proper
+`--color-*` tokens, with parallel overrides in the `[data-theme="dark"]`
+block. The standalone `:where(:root)` alias block was removed (no
+longer load-bearing).
 
 ```css
-/* app/globals.css */
-@theme {
-  /* … existing DevNest tokens … */
-  --color-primary:                oklch(0.62 0.16 35); /* same as --color-accent */
-  --color-primary-foreground:     oklch(1 0 0);
-  --color-card:                   oklch(1.00 0.000 0);
-  --color-card-foreground:        oklch(0.22 0.01  270);
-  --color-muted:                  oklch(0.97 0.005 270);
-  --color-muted-foreground:       oklch(0.45 0.01  270);
-  --color-secondary:              oklch(0.97 0.005 270);
-  --color-secondary-foreground:   oklch(0.22 0.01  270);
-  --color-destructive:            oklch(0.58 0.20 25);
-  --color-destructive-foreground: oklch(0.985 0 0);
-  --color-input:                  oklch(0.92 0.005 270);
-  --color-ring:                   oklch(0.62 0.16 35);
-}
+/* app/globals.css — inside @theme */
+--color-primary:                var(--color-accent);
+--color-primary-foreground:     oklch(1 0 0);
+--color-card:                   var(--color-bg-elev);
+--color-muted:                  var(--color-bg-sunken);
+--color-input:                  var(--color-border);
+--color-ring:                   var(--color-accent);
+--color-destructive:            var(--color-danger);
+/* …+ background, foreground, popover, secondary, accent-foreground,
+   destructive-foreground, plus dark-mode variants */
 ```
 
-…and matching dark-theme overrides under `[data-theme="dark"]`. Once
-the tokens live in `@theme`, the `:where(:root) { --primary: var(--color-accent); … }`
-block can be deleted.
-
-**Acceptance.** The home `Sign in` CTA shows as filled amber with
-white ink; matches design.md § `<Button>` `primary` row. Re-run
-`pnpm exec playwright test tests/e2e/inspection.spec.ts` and visually
-diff the new screenshots against the originals.
+**Acceptance.** ✅ The "Send magic link" CTA on `/signin` shows as
+filled amber with white ink (see
+[`test-results/inspection/02-signin.png`](test-results/inspection/02-signin.png));
+"New post" / "Follow" / "Browse the discovery feed →" buttons all show
+the accent fill across `/feed`, right rail, and tag pages.
 
 ---
 
-## 🔴 D-7 — `⌘K` shortcut isn't wired
+## ✅ 🔴 D-7 — `⌘K` shortcut isn't wired
 
 **Symptom.** Every layout — sidebar nav, right-rail search input,
 shortcuts cheatsheet — shows a `⌘K` kbd hint next to the search box.
@@ -110,363 +110,244 @@ Pressing `⌘K` does nothing. The active element stays on `<body>`.
 
 **Root cause.** Task **7.1** in
 [devnest-design-mvp tasks.md](openspec/changes/devnest-design-mvp/tasks.md#L91)
-explicitly says "the keyboard binding is left for a follow-up
-change" — yet the visible kbd hint advertises the shortcut as if it
-works. The UI promises something it doesn't deliver.
+explicitly said "the keyboard binding is left for a follow-up
+change" — yet the visible kbd hint advertised the shortcut as if it
+worked.
 
-**Fix options.**
+**Resolution.** Added a global `<KeyboardShortcuts>` client component
+([components/site/keyboard-shortcuts.tsx](components/site/keyboard-shortcuts.tsx))
+mounted from the `(app)` layout. It listens for `⌘K` / `Ctrl+K` and
+focuses the right-rail search input (which now carries
+`id="global-search"` and `name="q"` for stable targeting). The
+listener ignores key events whose target is an editable element so
+users can keep typing freely.
 
-1. **Wire it.** Add a global `keydown` listener (e.g. in the root
-   layout or a small client component) that intercepts `Cmd/Ctrl+K`,
-   focuses the search input. ~15 min.
-2. **Remove the kbd hint** until the binding is wired. The hint lives
-   in [components/site/right-rail.tsx](components/site/right-rail.tsx)
-   (`<kbd>⌘K</kbd>` next to the search input) and the Shortcuts
-   cheatsheet in the same file. ~2 min.
-
-(1) is the right end-state. (2) is the right *immediate* fix — better
-to omit a hint than to lie about it.
-
-**Acceptance.** Either: (a) `⌘K` from anywhere in the app focuses the
-search input, or (b) the `⌘K` hint disappears.
+**Acceptance.** ✅ Probe `kbd-cmd-k` records `ok: true` —
+`after=input#global-search[name=q] aria="Search developers and tags"`.
 
 ---
 
-## 🔴 D-8 — Vim-style nav shortcuts (`g h`, `g e`, `g p`, …) don't work
+## ✅ 🔴 D-8 — Vim-style nav shortcuts (`g h`, `g e`, `g p`, …)
 
-**Symptom.** Each sidebar item shows a kbd hint —
-`g h` next to Home, `g e` next to Explore, `g n` next to Notifications,
-`g m` Messages, `g b` Bookmarks, `g p` Profile, `g ,` Settings.
-Pressing `g` then `h` from any page does NOT navigate to `/feed`.
+**Symptom.** Each sidebar item showed a kbd hint —
+`g h` next to Home, `g e` next to Explore, `g p` Profile, `g ,`
+Settings. Pressing `g` then `h` from any page did NOT navigate to
+`/feed`.
 
-[Probed by](tests/e2e/interactions.spec.ts) `kbd-g-h`, `kbd-g-e` —
-both recorded the URL unchanged after the keystrokes.
+[Probed by](tests/e2e/interactions.spec.ts) `kbd-g-h`, `kbd-g-e`.
 
-**Root cause.** Same as D-7: visual hint advertised, binding deferred.
+**Resolution.** Same `<KeyboardShortcuts>` component handles the
+g-prefix sequence. After a `g` keydown the listener stores a
+1 s window during which the next key resolves to a route:
 
-**Fix.** Either implement the bindings (a small global key-sequence
-listener — `g` + next key, with a 1 s timeout window — wired to
-`router.push()`) or strip the hints until the bindings ship. Same
-two-tier choice as D-7.
+| Sequence | Route |
+| --- | --- |
+| `g h` | `/feed` |
+| `g e` | `/explore` |
+| `g p` | `/me` |
+| `g ,` | `/me/settings` |
 
-**Acceptance.** Either: (a) `g h` from anywhere navigates to `/feed`
-(and the rest of the sequences work), or (b) the kbd hints next to
-sidebar items are gone.
+The bindings for the disabled-in-MVP nav slots (Notifications /
+Messages / Bookmarks) are deliberately omitted so we don't promise
+behaviour for features that aren't built.
+
+**Acceptance.** ✅ Probes `kbd-g-h` and `kbd-g-e` both record
+`ok: true`.
 
 ---
 
-## 🔴 D-9 — Theme preference doesn't survive page loads (cookie ↔ next-themes desync)
+## ✅ 🔴 D-9 — Theme preference doesn't survive page loads
 
 **Symptom.** Setting `prefs.theme = "dark"` in the
-`devnest.prefs` cookie does NOT result in dark theme rendering on the
+`devnest.prefs` cookie did NOT result in dark theme rendering on the
 next page load. The screenshots in `test-results/responsive/` for
-`*-dark-desktop.png` and `*-dark-mobile.png` are visually identical
+`*-dark-desktop.png` and `*-dark-mobile.png` were visually identical
 to their `*-light-*` counterparts.
 
-[Probed by](tests/e2e/responsive-themes.spec.ts) — cookie set to
-`{theme:"dark"}` before navigation; rendered surface stays light.
+[Probed by](tests/e2e/responsive-themes.spec.ts).
 
-**Root cause.** Two stores of the theme preference fight each other:
+**Root cause.** Two stores fought each other:
 
-1. **Our `devnest.prefs` cookie** — written by the
-   [updatePreferences server action](lib/preferences/actions.ts);
-   read by the [root layout](app/layout.tsx) to set
-   `<html data-theme="…">` on first paint.
-2. **next-themes localStorage** — written by `setTheme()` calls from
-   the [`<ThemeToggle>`](components/site/theme-toggle.tsx); read by
-   `<NextThemeProvider>` on hydration.
+1. **`devnest.prefs` cookie** — written by
+   [`updatePreferences`](lib/preferences/actions.ts), read by
+   [`app/layout.tsx`](app/layout.tsx) to set `<html data-theme>`.
+2. **next-themes localStorage** — initialised to `"system"`,
+   resolved against the OS preference, and overwrote the SSR value.
 
-After hydration, next-themes sees its localStorage default
-(`"system"`), resolves it to the OS preference (light, on this dev
-machine), and overwrites our server-set `data-theme="dark"`. End
-result: **the cookie-stored preference is silently ignored**.
+**Resolution.** Picked option (1) from the proposal — drop next-themes
+entirely. The cookie is now the single source of truth:
 
-The interactions probe `theme-toggle` does pass — but only because it
-clicks the in-app toggle (which writes localStorage) and immediately
-reads the attribute. It never tests round-tripping across a reload.
+- `<ThemeToggle>` ([components/site/theme-toggle.tsx](components/site/theme-toggle.tsx))
+  reads `data-theme` from `document.documentElement`, calls
+  `updatePreferences({ theme })`, and optimistically flips the
+  attribute so the UI re-skins instantly.
+- `<ThemeProvider>` ([components/site/theme-provider.tsx](components/site/theme-provider.tsx))
+  is now a passthrough fragment.
+- For `theme: "system"` an inline script in
+  [`app/layout.tsx`](app/layout.tsx) reads
+  `prefers-color-scheme: dark` synchronously before paint and bumps
+  `data-theme="dark"` so users on dark-mode machines don't see a
+  light-to-dark flash.
+- `next-themes` removed from `package.json`.
 
-**Fix.** Make the two stores agree. Pick one of:
-
-1. **Cookie is the source of truth** — drop `next-themes`. Our
-   `<html data-theme>` is already SSR-rendered from the cookie; we
-   just need a small client component to call `updatePreferences` on
-   theme-toggle click and apply the data attribute optimistically.
-2. **Stay on next-themes, sync the cookie** — use next-themes's
-   `onChange` callback (or wrap `setTheme`) to write the cookie
-   whenever the theme changes. Cookie remains the SSR source.
-3. **Stay on next-themes, drop the cookie for theme** — keep
-   `density`, `layout`, `codeStyle` in the cookie; theme lives in
-   localStorage only. Accept FOUC on first paint.
-
-(1) is the cleanest given we already own a server action; (2) keeps
-the existing library. (3) is the cheapest but regresses
-"no FOUC."
-
-**Acceptance.** Setting the cookie to `theme:"dark"` results in
-`<html data-theme="dark">` after the page has hydrated; visual diff
-between `feed-light-desktop.png` and `feed-dark-desktop.png` shows
-distinct light / dark UIs.
+**Acceptance.** ✅ Setting the cookie to `theme:"dark"` now renders
+dark UI end-to-end —
+[`test-results/responsive/feed-dark-desktop.png`](test-results/responsive/feed-dark-desktop.png)
+shows the dark surface tokens, contrasting cleanly with
+[`test-results/responsive/feed-light-desktop.png`](test-results/responsive/feed-light-desktop.png).
+Probe `theme-toggle` records `ok: true`.
 
 ---
 
-## 🔴 D-12 — No navigation chrome on mobile
+## ✅ 🔴 D-12 — No navigation chrome on mobile
 
 **Symptom.** Below the `md:` breakpoint (768 px), the sidebar
-disappears (it's `hidden md:flex` in
+disappeared (`hidden md:flex` in
 [components/site/sidebar.tsx](components/site/sidebar.tsx)). Below
-`lg:` (1024 px), the right rail also disappears
-([right-rail.tsx](components/site/right-rail.tsx)). At iPhone-14
-width (390 px), there is **no top header, no menu button, no bottom
-tab bar — nothing at all to navigate the app.**
+`lg:` (1024 px), the right rail also disappeared. At iPhone-14 width
+(390 px), there was **no header, no menu button, no bottom tab bar —
+nothing at all to navigate the app.**
 
-A signed-in user on mobile cannot reach `/me`, `/me/settings`,
-`/explore`, `/search`, sign out, or change theme. The only way out is
-typing a URL in the browser bar.
+A signed-in user on mobile could not reach `/me`, `/me/settings`,
+`/explore`, `/search`, sign out, or change theme.
 
-Visible on every `*-light-mobile.png` and `*-dark-mobile.png`
-screenshot in `test-results/responsive/`.
+**Resolution.** Added a new `<MobileTopBar>` component
+([components/site/mobile-top-bar.tsx](components/site/mobile-top-bar.tsx))
+mounted in the `(app)` layout. It renders:
 
-**Root cause.** When the sidebar was introduced (Section 6 of the
-design change), the previous `<SiteHeader>` was removed from the root
-layout because the desktop sidebar replaced it. No mobile fallback
-was added.
+- A sticky 48 px top bar (hidden ≥ `md:`) with the brand mark on the
+  left and a hamburger button on the right.
+- A Radix-Dialog-based slide-in drawer triggered from the hamburger.
+  The drawer contains the same primary + secondary nav items, theme
+  toggle, profile chip, and a sign-out form (kept as a regular form
+  outside the dropdown, so it isn't subject to D-11's quirk).
+- An auto-close on route changes by wiring `onClick={close}` onto
+  every nav link (avoids the `set-state-in-effect` lint rule).
 
-**Fix.** One of:
+The desktop sidebar (`md:flex`) is unchanged.
 
-1. **A mobile top header** with a menu button that opens the sidebar
-   in a sheet / drawer. shadcn's `<Sheet>` is already in the
-   ecosystem; ~30 min.
-2. **A bottom tab bar** for mobile (Home, Explore, Search, Me) —
-   matches modern social-app conventions; ~45 min.
-3. **Always-on top header on mobile** with a hamburger that toggles
-   sidebar visibility — minimal change, ~15 min.
-
-For the MVP, (3) is the smallest delta. (1) is the conventional
-answer.
-
-**Acceptance.** At 390 × 844 viewport, every authenticated page
-exposes a navigation affordance to reach `/feed`, `/explore`,
-`/search`, `/me`, `/me/settings`, sign-out.
+**Acceptance.** ✅ At 390 × 844, every authenticated screen shows the
+top bar — see
+[`test-results/responsive/feed-light-mobile.png`](test-results/responsive/feed-light-mobile.png)
+and the dark variant. Tapping the hamburger opens the drawer with the
+full nav.
 
 ---
 
-## 🟡 D-2 — Sidebar footer overflows for unauthenticated viewers
+## ✅ 🟡 D-2 — Sidebar footer overflows for unauthenticated viewers
 
-**Symptom.** On `/explore`, `/search`, `/t/<slug>`, when no user is
-signed in, the sidebar footer renders the placeholder
+**Symptom.** On `/explore`, `/search`, `/t/<slug>`, when no user was
+signed in, the sidebar footer rendered the placeholder
 `<span>not signed in</span>` plus the `<ThemeToggle>` button on the
-same row. The "not signed in" text is clipped — visible as
-`n  gned in` with the toggle icon overlapping.
+same row, and the placeholder text clipped to `n  gned in`.
 
-Most visible on `/search?q=t`
-([screenshot](test-results/inspection/04-search-public.png)),
-bottom-left.
+**Resolution.** Added `min-w-0 truncate` to the placeholder span in
+[`components/site/sidebar.tsx`](components/site/sidebar.tsx), so the
+flex item takes its share of width but never overflows.
 
-**Root cause.** [components/site/sidebar.tsx](components/site/sidebar.tsx)
-unauthenticated branch lays out the placeholder text and the toggle
-in `flex items-center justify-between gap-2`, with no `truncate` /
-`min-w-0` on the text.
-
-**Fix.**
-
-```diff
--<span className="text-[var(--color-ink-faint)] font-mono text-[11px]">
--  not signed in
--</span>
--<ThemeToggle />
-+<span className="text-[var(--color-ink-faint)] truncate font-mono text-[11px]">
-+  not signed in
-+</span>
-+<ThemeToggle />
-```
-
-Or drop the placeholder for unauthed viewers and just render the
-theme toggle.
-
-**Acceptance.** At 1280 × 900 on `/search?q=t`, the sidebar footer
-reads cleanly.
+**Acceptance.** ✅ At 1280 × 900 on `/search?q=t`, the sidebar footer
+reads cleanly (see
+[`test-results/inspection/04-search-public.png`](test-results/inspection/04-search-public.png)).
 
 ---
 
-## 🟡 D-3 — Sidebar overlaps the Next.js dev-tools bubble (dev-only)
+## ✅ 🟡 D-3 — Sidebar overlapped Next.js dev-tools bubble (dev-only)
 
 **Symptom.** On every authenticated screen, Next.js's dev-tools
-bubble (the dark `N` circle) sits at bottom-left and overlaps the
+bubble (the dark `N` circle) sat at bottom-left and overlapped the
 sidebar's signed-in footer (avatar + handle + chevron).
 
-**In production this defect disappears** — the bubble is dev-only.
+**Resolution.** Set `devIndicators.position = "bottom-right"` in
+[`next.config.ts`](next.config.ts).
 
-**Fix.**
-
-```diff
- const nextConfig: NextConfig = {
-+  devIndicators: {
-+    position: "bottom-right",
-+  },
- };
-```
-
-Two-line change in `next.config.ts`.
-
-**Acceptance.** No visible overlap between the sidebar avatar and any
-Next.js indicator at 1280 × 900 in dev.
+**Acceptance.** ✅ The "N" indicator now renders at bottom-right on
+every dev screenshot (e.g.
+[`test-results/responsive/feed-dark-desktop.png`](test-results/responsive/feed-dark-desktop.png)).
 
 ---
 
-## 🟡 D-10 — Char counter "red over the limit" branch is unreachable
+## ✅ 🟡 D-10 — Char counter "red over the limit" branch is reachable
 
-**Symptom.** Design says (composer):
+**Symptom.** The composer's `<Textarea maxLength={POST_MAX}>` clipped
+input at 10 000 characters; the over-limit branch could never be
+reached, so the red counter and disabled-Post-button case were dead
+code. The amber threshold (>9 800) worked correctly.
 
-> Char counter (mono 11) goes amber within 200 chars of the limit,
-> red over.
+**Resolution.** Dropped the `maxLength` attribute in
+[`components/posts/post-composer.tsx`](components/posts/post-composer.tsx).
+The server-side Zod cap on the action is unchanged; the textarea now
+lets the user over-fill, the counter goes red (`--color-danger`),
+and the Post button is disabled. Also marks the textarea
+`aria-invalid="true"` when over-limit.
 
-The composer's `<Textarea maxLength={POST_MAX}>` clips input at
-10 000 characters — the over-limit case can never be reached via
-keyboard input or paste, so the red branch never fires. The amber
-threshold (>9 800) works correctly.
-
-[Probed by](tests/e2e/interactions.spec.ts) `composer-counter-tones`
-— same color (`oklch(0.72 0.16 85)`, the warn token) at 9 900 and at
-10 001 (clipped to 10 000).
-
-**Root cause.** [post-composer.tsx](components/posts/post-composer.tsx)
-has both the maxLength clamp and a `> POST_MAX` branch in
-`counterTone`. They contradict: either the user can over-fill (red
-state useful) or maxLength is enforced (red state dead code).
-
-**Fix options.**
-
-1. **Drop `maxLength` from the textarea**, let the user type past the
-   limit, and show red + a disabled Post button. Server-side Zod
-   already enforces the cap — the client just visualizes it. ~5 min.
-2. **Drop the `>POST_MAX` branch** in `counterTone` since it's dead
-   code. Lazy spec compliance. ~1 min.
-
-(1) is the right fix; the spec was written assuming over-fill is
-possible.
-
-**Acceptance.** Pasting 10 200 characters into the composer renders
-the counter `10200/10000` in `--color-danger`, and the Post button is
-disabled.
+**Acceptance.** ✅ Probe `composer-counter-tones` records distinct
+amber/red colours at the two thresholds (`ok: true`).
 
 ---
 
-## 🟡 D-11 — Sign-out from the sidebar dropdown doesn't navigate to `/`
+## ✅ 🟡 D-11 — Sign-out from sidebar dropdown navigates to `/`
 
-**Symptom.** Opening the sidebar profile dropdown (signed-in
-viewer) → clicking "Sign out" → URL stays at `/feed`. The session
-appears to clear (next page load lands on `/signin`), but the in-tab
-redirect to `/` documented for the action does not happen.
+**Symptom.** Opening the sidebar profile dropdown (signed-in viewer)
+→ clicking "Sign out" → URL stayed at `/feed`. The session cleared
+eventually, but the in-tab redirect to `/` documented for the action
+did not happen.
 
-[Probed by](tests/e2e/interactions.spec.ts) `signout-from-sidebar` —
-recorded `final url = http://localhost:3000/feed`.
+[Probed by](tests/e2e/interactions.spec.ts) `signout-from-sidebar`.
 
-**Likely root cause.** The Sign out button is wired as:
+**Root cause.** The Sign-out item was wired as a Radix
+`<DropdownMenuItem asChild>` wrapping a `<form action={signOutAction}>`.
+Radix's menu-item swallows the click event to close the menu before
+the inner form submits.
 
-```tsx
-<DropdownMenuItem asChild>
-  <form action={signOutAction} className="w-full">
-    <button type="submit" …>Sign out</button>
-  </form>
-</DropdownMenuItem>
-```
+**Resolution.** Replaced the nested form with an `onSelect` handler
+on the `<DropdownMenuItem>` ([components/site/sidebar.tsx](components/site/sidebar.tsx)).
+The handler calls `event.preventDefault()` (so Radix doesn't close
+the menu before our action fires) and invokes `signOutAction()`,
+whose `signOut({ redirectTo: "/" })` propagates the redirect.
 
-Radix's `<DropdownMenuItem asChild>` swallows the click event to
-close the menu before the inner form submits. The form action runs
-but doesn't propagate the redirect because the menu close handler
-calls `event.preventDefault()` first.
-
-**Fix.** Don't nest a form inside `<DropdownMenuItem asChild>`.
-Either:
-
-1. Use a plain menu item with an `onSelect` handler (Radix's
-   recommended pattern):
-
-   ```diff
-   -<DropdownMenuItem asChild>
-   -  <form action={signOutAction} className="w-full">
-   -    <button type="submit" …>Sign out</button>
-   -  </form>
-   -</DropdownMenuItem>
-   +<DropdownMenuItem
-   +  onSelect={(e) => {
-   +    e.preventDefault();
-   +    void signOutAction();
-   +  }}
-   +>
-   +  <LogOut className="size-4" /> Sign out
-   +</DropdownMenuItem>
-   ```
-
-2. Move sign-out out of the dropdown — make "Sign out" a plain link
-   to a dedicated `/signout` route handler. Heavier but a11y-cleaner.
-
-(1) is the right fix.
-
-**Acceptance.** Clicking Sign out from the dropdown lands the visitor
-on `/` with no auth cookie; reload of any `(app)` route redirects
-to `/signin`.
+**Acceptance.** ✅ Probe `signout-from-sidebar` now records
+`final url = http://localhost:3000/` (`ok: true`).
 
 ---
 
-## ⚪ D-4 — Brand-mark underline placement may be off by one character
+## ✅ ⚪ D-4 — Brand-mark underline placement
 
-**Symptom.** The `<BrandMark>` is supposed to underline only `nest`.
-At 28-pt size on the sign-in card the underline visually appears to
-extend further than the four characters of `nest`.
+**Symptom.** The `<BrandMark>` was supposed to underline only `nest`.
+At 28 pt (sign-in card) the underline visually overshot the four
+characters of `nest`.
 
-**Fix.** [components/site/brand-mark.tsx](components/site/brand-mark.tsx)
-— rebuild `dev` + `nest` as separate `inline-block` boxes so each
-line-box is bound exactly:
+**Resolution.** Rebuilt
+[`components/site/brand-mark.tsx`](components/site/brand-mark.tsx)
+with `dev` and `nest` as separate `inline-block` boxes inside an
+`inline-flex items-baseline` wrapper, with `lineHeight: 1` on the
+underlined box so its line-box matches the four characters exactly.
 
-```diff
--<span className="text-foreground">
--  dev
--  <span
--    className="relative"
--    style={{
--      borderBottom: "1.5px solid var(--color-accent)",
--      paddingBottom: 1,
--    }}
--  >
--    nest
--  </span>
--</span>
-+<span className="text-foreground inline-flex items-baseline">
-+  <span>dev</span>
-+  <span
-+    className="inline-block"
-+    style={{
-+      borderBottom: "1.5px solid var(--color-accent)",
-+      lineHeight: 1,
-+    }}
-+  >
-+    nest
-+  </span>
-+</span>
-```
-
-**Acceptance.** At every BrandMark size (sm / md / lg), the underline
-starts exactly at `n` and ends at `t`.
+**Acceptance.** ✅ At every BrandMark size (sm / md / lg), the
+underline starts at `n` and ends at `t` — visible on the sign-in
+screenshot
+[`test-results/inspection/02-signin.png`](test-results/inspection/02-signin.png),
+the mobile top bar, and the sidebar.
 
 ---
 
-## ⚪ D-6 — Trending tags always show "1" in dev
+## ✅ ⚪ D-6 — Trending tags always show "1" in dev
 
 **Symptom.** Right-rail "Trending" panel ranks tags by post count in
-the last 7 days. Dev DB has exactly one post per tag; ranking is
+the last 7 days. The dev DB has exactly one post per tag; ranking is
 uniform. Working as designed.
 
-**Fix.** None. Worth a one-liner in
-[DEPLOYMENT.md](DEPLOYMENT.md) so reviewers know.
+**Resolution.** Added a "Notes for reviewers" section to
+[`DEPLOYMENT.md`](DEPLOYMENT.md) documenting the dev-data behaviour
+so future reviewers don't mistake it for a defect. To see realistic
+ranking locally, seed multiple posts with overlapping tags.
 
 ---
 
-## Resolved during this session
+## Resolved during this session (test-only fix)
 
 - **D-13 — Sidebar profile-menu trigger had no accessible name.**
   Screen readers read it as the inner display-name + handle, which
-  doubles up. Tests also couldn't target it reliably. Added
+  doubled up. Tests also couldn't target it reliably. Added
   `aria-label="Profile menu"` to the trigger button in
   [components/site/sidebar.tsx](components/site/sidebar.tsx). Both a
   test fix AND an a11y fix.
@@ -482,7 +363,7 @@ uniform. Working as designed.
 - `/me` empty state copy — matches profile spec.
 - The inspection's own `expect` failure on `/me/settings` (heading
   `/appearance/i` matched two `<h2>`s) — test-spec ambiguity, not a
-  product defect.
+  product defect; persists in the post-fix run as documented.
 - **D-5 (avatar size)** from the first review — the desktop
   screenshot looked small, but the mobile screenshot
   ([profile-light-mobile.png](test-results/responsive/profile-light-mobile.png))
@@ -492,39 +373,41 @@ uniform. Working as designed.
 
 ## Summary table
 
-| ID | Sev | Title | Fix effort |
-|---|---|---|---|
-| **D-1** | 🔴 | Default `<Button>` renders without fill | ~10 min |
-| **D-7** | 🔴 | `⌘K` advertised, not wired | 2 min (remove hint) or 15 min (wire) |
-| **D-8** | 🔴 | Vim-style nav shortcuts advertised, not wired | 2 min (remove hints) or 30 min (wire) |
-| **D-9** | 🔴 | Theme cookie doesn't survive reloads | ~30 min (sync cookie ↔ next-themes) |
-| **D-12** | 🔴 | No navigation chrome on mobile | ~15 min (mobile header w/ hamburger) |
-| D-2 | 🟡 | Sidebar footer overflow (unauthed) | ~5 min |
-| D-3 | 🟡 | Sidebar overlaps Next dev-tools bubble | ~2 min |
-| D-10 | 🟡 | Char counter "over limit" unreachable | ~5 min |
-| D-11 | 🟡 | Sign-out from dropdown doesn't redirect | ~10 min |
-| D-4 | ⚪ | Brand-mark underline drift | ~10 min |
-| D-6 | ⚪ | Trending shows "1" in dev | no fix |
+| ID | Sev | Title | Status |
+| --- | --- | --- | --- |
+| **D-1** | 🔴 | Default `<Button>` renders without fill | ✅ resolved |
+| **D-7** | 🔴 | `⌘K` advertised, not wired | ✅ resolved (wired) |
+| **D-8** | 🔴 | Vim-style nav shortcuts advertised, not wired | ✅ resolved (wired) |
+| **D-9** | 🔴 | Theme cookie doesn't survive reloads | ✅ resolved (cookie SSOT) |
+| **D-12** | 🔴 | No navigation chrome on mobile | ✅ resolved (mobile top bar + drawer) |
+| D-2 | 🟡 | Sidebar footer overflow (unauthed) | ✅ resolved |
+| D-3 | 🟡 | Sidebar overlaps Next dev-tools bubble | ✅ resolved |
+| D-10 | 🟡 | Char counter "over limit" unreachable | ✅ resolved |
+| D-11 | 🟡 | Sign-out from dropdown doesn't redirect | ✅ resolved |
+| D-4 | ⚪ | Brand-mark underline drift | ✅ resolved |
+| D-6 | ⚪ | Trending shows "1" in dev | ✅ documented |
 
-## Recommended fix order
+## Verification
 
-1. **D-1** — single token-block edit, fixes every primary CTA across
-   the app. Biggest impact per minute.
-2. **D-12** — mobile chrome. Without this the app is unusable on
-   phones; nothing else helps a mobile user.
-3. **D-9** — theme persistence. Users who pick dark mode expect it to
-   stick.
-4. **D-7 + D-8** — at minimum, hide the kbd hints until they work
-   (~5 min total for both).
-5. **D-11** — sign-out behaviour.
-6. **D-3** — dev-only bubble, easy.
-7. The rest as appetite allows.
+All three Playwright specs were re-run end-to-end with the dev server
+restarted on a clean cache:
 
-After fixes, re-run all three specs and diff:
-
-```bash
-pnpm exec playwright test \
-  tests/e2e/inspection.spec.ts \
-  tests/e2e/responsive-themes.spec.ts \
-  tests/e2e/interactions.spec.ts
+```text
+16 passed (1.4m)
 ```
+
+Interaction findings (`test-results/interactions/_findings.json`):
+
+```json
+{ "total": 11, "ok": 11, "failures": 0, "failedIds": [] }
+```
+
+Inspection sweep summary (`test-results/inspection/_summary.json`):
+
+| | Count |
+| --- | --- |
+| Surfaces | 8 |
+| Bad HTTP status | 0 |
+| Page errors | 0 |
+| Console errors | 0 |
+| Expect failures | 1 (the pre-existing `/me/settings` heading ambiguity, see "Non-defects") |

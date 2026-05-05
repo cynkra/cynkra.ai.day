@@ -152,12 +152,15 @@ export function PostComposer({ viewer }: { viewer?: Viewer } = {}) {
             name="body"
             placeholder="What's on your mind? Use ```lang for code blocks."
             rows={focused || length > 0 ? 4 : 2}
-            maxLength={POST_MAX}
+            // No `maxLength` — server-side Zod enforces the cap. Clipping
+            // here would make the over-limit branch (red counter + disabled
+            // Post) unreachable; cf. DEFECTS.md → D-10.
             required
             onChange={(e) => setLength(e.target.value.length)}
             onKeyDown={onKeyDown}
             aria-invalid={
-              !state.ok && state.error && state.field === "body"
+              (!state.ok && state.error && state.field === "body") ||
+              length > POST_MAX
                 ? "true"
                 : undefined
             }

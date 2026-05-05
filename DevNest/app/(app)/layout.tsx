@@ -2,6 +2,8 @@ import { eq } from "drizzle-orm";
 import type { ReactNode } from "react";
 
 import { auth } from "@/auth";
+import { KeyboardShortcuts } from "@/components/site/keyboard-shortcuts";
+import { MobileTopBar } from "@/components/site/mobile-top-bar";
 import { RightRail } from "@/components/site/right-rail";
 import { Sidebar } from "@/components/site/sidebar";
 import { db } from "@/lib/db";
@@ -35,12 +37,14 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
   }
 
   return (
-    <div className="flex min-h-screen w-full">
+    <div className="flex min-h-screen w-full flex-col md:flex-row">
+      <MobileTopBar viewer={viewer} />
       <Sidebar viewer={viewer} />
       <main className="flex min-w-0 flex-1 justify-center px-4 py-6 md:px-8">
         <div className="w-full max-w-2xl">{children}</div>
       </main>
       <RightRail authenticated={Boolean(viewer)} />
+      <KeyboardShortcuts />
     </div>
   );
 }

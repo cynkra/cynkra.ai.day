@@ -167,7 +167,7 @@ function ProfileMenu({ viewer }: { viewer: Viewer }) {
   if (!viewer) {
     return (
       <div className="border-border flex items-center justify-between gap-2 border-t px-[var(--sidebar-pad)] py-3">
-        <span className="text-[var(--color-ink-faint)] font-mono text-[11px]">
+        <span className="text-[var(--color-ink-faint)] min-w-0 truncate font-mono text-[11px]">
           not signed in
         </span>
         <ThemeToggle />
@@ -216,16 +216,19 @@ function ProfileMenu({ viewer }: { viewer: Viewer }) {
             </div>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem asChild>
-            <form action={signOutAction} className="w-full">
-              <button
-                type="submit"
-                className="text-destructive flex w-full items-center gap-2"
-              >
-                <LogOut className="size-4" />
-                Sign out
-              </button>
-            </form>
+          <DropdownMenuItem
+            onSelect={(event) => {
+              // Radix closes the menu by default; preventDefault stops it
+              // from swallowing the event before our action fires (the
+              // server-side redirect inside signOutAction handles the
+              // route change). DEFECTS.md → D-11.
+              event.preventDefault();
+              void signOutAction();
+            }}
+            className="text-destructive cursor-pointer"
+          >
+            <LogOut className="size-4" />
+            Sign out
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

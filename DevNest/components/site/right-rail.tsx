@@ -37,6 +37,7 @@ export async function RightRail({ authenticated }: { authenticated: boolean }) {
       <form action="/search" className="bg-card border-border flex items-center gap-2 rounded border px-2 py-1.5">
         <Search className="text-[var(--color-ink-faint)] size-3.5" />
         <input
+          id="global-search"
           type="search"
           name="q"
           placeholder="Search"

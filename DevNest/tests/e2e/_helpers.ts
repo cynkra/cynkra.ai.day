@@ -63,9 +63,14 @@ export async function signInViaMagicLink(
   await page.getByRole("button", { name: /continue with email/i }).click();
   await page.getByLabel(/email/i).fill(email);
   await page.getByRole("button", { name: /send magic link/i }).click();
+  // The redirect chain (POST /signin → /api/auth/verify-request →
+  // /signin/check-email) sometimes settles faster than Playwright can
+  // attach a new-navigation listener, so we don't `waitForURL`. Instead
+  // wait for the final heading to appear with a generous timeout that
+  // covers the lazy nodemailer-transport build on the first cold call.
   await expect(
     page.getByRole("heading", { name: /check your email/i }),
-  ).toBeVisible();
+  ).toBeVisible({ timeout: 30_000 });
   const message = await waitForEmailTo(request, email);
   const magicLink = extractMagicLink(message);
   await page.goto(magicLink);

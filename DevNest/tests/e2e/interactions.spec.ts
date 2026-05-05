@@ -327,7 +327,11 @@ test.describe("interactions — sign out from sidebar dropdown", () => {
     // Open sidebar profile dropdown.
     await page.getByRole("button", { name: /profile menu/i }).click();
     await page.waitForTimeout(200);
-    await page.getByRole("button", { name: /sign out/i }).click();
+    // Sign-out is a Radix DropdownMenuItem (role=menuitem), wired via
+    // onSelect now (DEFECTS.md → D-11). The Radix item swallows the
+    // event by default; the handler calls preventDefault and runs
+    // signOutAction, which triggers a server-side redirect to "/".
+    await page.getByRole("menuitem", { name: /sign out/i }).click();
     await page.waitForTimeout(800);
     const url = page.url();
     record({

@@ -3,6 +3,11 @@
  * The `nest` segment carries a non-blinking caret-style underline in
  * --accent, mirroring an editor's text caret. Renders the same in
  * sidebar / sign-in / footer surfaces.
+ *
+ * `dev` and `nest` are split into separate `inline-block` boxes so the
+ * line-box on `nest` is bound exactly to its four characters — the
+ * underline starts at `n` and ends at `t` regardless of font size
+ * (DEFECTS.md → D-4).
  */
 export function BrandMark({
   size = "md",
@@ -18,13 +23,13 @@ export function BrandMark({
       style={{ fontSize, fontWeight: 600 }}
     >
       <span style={{ color: "var(--color-accent)" }}>{"{"}</span>
-      <span className="text-foreground">
-        dev
+      <span className="text-foreground inline-flex items-baseline">
+        <span>dev</span>
         <span
-          className="relative"
+          className="inline-block"
           style={{
             borderBottom: "1.5px solid var(--color-accent)",
-            paddingBottom: 1,
+            lineHeight: 1,
           }}
         >
           nest

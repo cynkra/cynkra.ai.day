@@ -150,6 +150,15 @@ Takes ≤ 3 minutes.
 If any item fails, roll back and inspect the deploy logs for an
 `x-request-id` to correlate.
 
+## Notes for reviewers
+
+- **Right-rail "Trending" tags ranking is uniform in dev.** The seed
+  database has roughly one post per tag, so `getTrendingTags()` (post
+  count over the last 7 days) ties everything at "1". This is not a
+  defect — it resolves naturally once the table has real traffic. To
+  preview the production look locally, seed multiple posts with
+  overlapping tags before checking the right rail.
+
 ## Open prod questions
 
 Tracked in [the design doc](openspec/changes/bootstrap-devnest-mvp/design.md#open-questions):

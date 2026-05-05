@@ -34,12 +34,16 @@ export default async function RootLayout({
   const requestId = (await headers()).get(REQUEST_ID_HEADER) ?? "";
 
   // Read user preferences from the cookie so SSR can write the right
-  // data-* attributes on <html> on the first paint (no FOUC). next-themes
-  // sets data-theme on the client; we still apply a server-side default
-  // here so the cascade has a known starting value.
+  // data-* attributes on <html> on the first paint (no FOUC). The cookie
+  // is the single source of truth for theme; <ThemeToggle> writes it
+  // via a server action and optimistically flips the data attribute.
   const cookieStore = await cookies();
   const prefs = parsePreferences(cookieStore.get(PREFS_COOKIE)?.value ?? null);
+  // For "system", default to "light" on the server (we can't read the
+  // user's OS preference here). The inline script below upgrades to
+  // "dark" before paint when prefers-color-scheme: dark matches.
   const initialTheme = prefs.theme === "system" ? "light" : prefs.theme;
+  const isSystemTheme = prefs.theme === "system";
 
   return (
     <html
@@ -53,6 +57,18 @@ export default async function RootLayout({
     >
       <head>
         {requestId ? <meta name="x-request-id" content={requestId} /> : null}
+        {isSystemTheme ? (
+          // Inline script: when the cookie says "system", read the OS
+          // preference synchronously before the body paints. Avoids a
+          // light-to-dark flash for users on dark-mode machines.
+          // Only this branch ships JS; explicit themes don't need it.
+          <script
+            dangerouslySetInnerHTML={{
+              __html:
+                'try{if(window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches){document.documentElement.dataset.theme="dark"}}catch(e){}',
+            }}
+          />
+        ) : null}
       </head>
       <body className="bg-background text-foreground min-h-screen antialiased">
         <ThemeProvider>

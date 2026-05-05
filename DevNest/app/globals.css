@@ -29,6 +29,31 @@
   --color-warn:         oklch(0.72 0.16  85);
   --color-danger:       oklch(0.58 0.20  25);
 
+  /* === shadcn primitive aliases ===
+   * Tailwind v4 generates utilities (`bg-primary`, `text-card-foreground`,
+   * `ring-ring`, etc.) only from `--color-*` tokens declared inside
+   * `@theme`. The shadcn primitives (`<Button>`, `<Input>`, `<Card>`,
+   * `<DropdownMenu>`, …) reference these names; defining them here makes
+   * those utilities resolve. Dark-theme overrides live below.
+   */
+  --color-background:             var(--color-bg);
+  --color-foreground:             var(--color-ink);
+  --color-card:                   var(--color-bg-elev);
+  --color-card-foreground:        var(--color-ink);
+  --color-popover:                var(--color-bg-elev);
+  --color-popover-foreground:     var(--color-ink);
+  --color-muted:                  var(--color-bg-sunken);
+  --color-muted-foreground:       var(--color-ink-muted);
+  --color-secondary:              var(--color-bg-sunken);
+  --color-secondary-foreground:   var(--color-ink);
+  --color-accent-foreground:      var(--color-accent-ink);
+  --color-input:                  var(--color-border);
+  --color-ring:                   var(--color-accent);
+  --color-primary:                var(--color-accent);
+  --color-primary-foreground:     oklch(1 0 0);
+  --color-destructive:            var(--color-danger);
+  --color-destructive-foreground: oklch(0.985 0 0);
+
   /* === Syntax tokens (Shiki theme remap) === */
   --color-syn-keyword:  oklch(0.50 0.20 305);
   --color-syn-string:   oklch(0.45 0.16 145);
@@ -58,7 +83,12 @@
   --col-side: 320px;
 }
 
-/* === Dark theme === */
+/* === Dark theme ===
+ * Override the same names declared inside @theme. Tailwind reads the
+ * literal `--color-*` value at runtime via `var(...)` in the generated
+ * utilities, so these overrides flow through bg-primary / text-foreground
+ * / border-border / etc. without any extra alias indirection.
+ */
 [data-theme="dark"] {
   --color-bg:           oklch(0.18 0.005 270);
   --color-bg-elev:      oklch(0.22 0.005 270);
@@ -81,6 +111,27 @@
   --color-syn-num:      oklch(0.80 0.14  60);
   --color-syn-fn:       oklch(0.80 0.14 240);
   --color-syn-comment:  oklch(0.55 0.01 270);
+
+  /* shadcn primitive aliases re-pointed for dark — most just chain
+     through the dark `--color-*` tokens above; primary-foreground stays
+     near-white for contrast on the brighter dark accent. */
+  --color-background:             var(--color-bg);
+  --color-foreground:             var(--color-ink);
+  --color-card:                   var(--color-bg-elev);
+  --color-card-foreground:        var(--color-ink);
+  --color-popover:                var(--color-bg-elev);
+  --color-popover-foreground:     var(--color-ink);
+  --color-muted:                  var(--color-bg-sunken);
+  --color-muted-foreground:       var(--color-ink-muted);
+  --color-secondary:              var(--color-bg-sunken);
+  --color-secondary-foreground:   var(--color-ink);
+  --color-accent-foreground:      var(--color-accent-ink);
+  --color-input:                  var(--color-border);
+  --color-ring:                   var(--color-accent);
+  --color-primary:                var(--color-accent);
+  --color-primary-foreground:     oklch(0.18 0.005 270);
+  --color-destructive:            var(--color-danger);
+  --color-destructive-foreground: oklch(0.985 0 0);
 }
 
 /* === Density (modifies internal paddings on cards / composer) === */
@@ -93,37 +144,6 @@
 [data-layout="two"]    { --col-nav: 240px; --col-side: 0; }
 [data-layout="three"]  { --col-nav: 240px; --col-side: 320px; }
 [data-layout="wide"]   { --col-nav: 280px; --col-side: 360px; }
-
-/*
- * shadcn primitive aliases. Existing `<Button>`, `<Input>`, `<Card>`,
- * etc. read these names; pointing them at the DevNest tokens means
- * shadcn picks up the new look without component-level edits.
- *
- * `:where()` keeps the specificity at 0 so any [data-theme="dark"]
- * scoped overrides further down the cascade win without !important.
- */
-:where(:root) {
-  --background: var(--color-bg);
-  --foreground: var(--color-ink);
-  --card:       var(--color-bg-elev);
-  --card-foreground: var(--color-ink);
-  --popover:    var(--color-bg-elev);
-  --popover-foreground: var(--color-ink);
-  --muted:      var(--color-bg-sunken);
-  --muted-foreground: var(--color-ink-muted);
-  --secondary:  var(--color-bg-sunken);
-  --secondary-foreground: var(--color-ink);
-  --accent:     var(--color-accent-bg);
-  --accent-foreground: var(--color-accent-ink);
-  --border:     var(--color-border);
-  --input:      var(--color-border);
-  --ring:       var(--color-accent);
-  --primary:    var(--color-accent);
-  --primary-foreground: oklch(1 0 0);
-  --destructive: var(--color-danger);
-  --destructive-foreground: oklch(0.985 0 0);
-  --radius:     8px;
-}
 
 @layer base {
   * {
