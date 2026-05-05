@@ -2,7 +2,7 @@
 
 ### Requirement: Decks group cards by topic
 
-The system SHALL provide a `Deck` entity with: `id`, `owner_id`, `name`, `topic` (free-form string, e.g. `grammar`, `themes`, `OLS-formulas`), `target_language` (nullable), `explanation_style` (nullable), `created_at`, `updated_at`. Every card SHALL belong to exactly one deck.
+The system SHALL provide a `Deck` entity with: `id`, `owner_id`, `name`, `topic` (free-form string, e.g. `grammar`, `themes`, `OLS-formulas`), `target_language` (nullable), `explanation_style` (nullable), `default_enrichment_mode` (one of `manual`, `external`, `llm`; default `llm`), `created_at`, `updated_at`. Every card SHALL belong to exactly one deck.
 
 #### Scenario: New card is assigned to a deck
 
@@ -49,3 +49,19 @@ The system SHALL NOT delete cards as a side effect of deleting a deck. The user 
 - **WHEN** a user deletes a deck and specifies a destination deck for the cards
 - **THEN** all cards in the deleted deck have their `deck_id` updated to the destination deck before the deck is removed
 - **AND** their scheduling state is preserved
+
+### Requirement: Deck default enrichment mode applies on capture
+
+When a card is created without an explicit `enrichment_mode`, the system SHALL set the new card's `enrichment_mode` to the deck's `default_enrichment_mode`. Changing a deck's `default_enrichment_mode` SHALL NOT modify the `enrichment_mode` of cards that already exist in that deck.
+
+#### Scenario: New card inherits the deck default
+
+- **WHEN** a deck has `default_enrichment_mode = manual` and the user creates a card in that deck without specifying a mode
+- **THEN** the new card has `enrichment_mode = manual`
+- **AND** no LLM call is made for that card
+
+#### Scenario: Existing cards are unaffected when the deck default changes
+
+- **WHEN** a deck contains cards with `enrichment_mode = llm` and the user changes the deck's `default_enrichment_mode` to `manual`
+- **THEN** the existing cards' `enrichment_mode` values are unchanged
+- **AND** only cards created after the change use the new default

@@ -40,6 +40,34 @@ The backend SHALL expose a sync endpoint that returns all changes to the user's 
 - **WHEN** a client calls sync twice with the same cursor and no server-side changes occurred between the calls
 - **THEN** the second response returns no decks and no cards (only an unchanged cursor)
 
+### Requirement: Server-Sent Events invalidation channel
+
+The backend SHALL expose `GET /sync/stream` as an authenticated Server-Sent Events endpoint. While a client connection is open, the backend SHALL push an invalidation event of the form `{ entity, id, updated_at }` whenever a record owned by the connected user is created or updated by any source (the same client, another of the user's clients, the AI deck generator, or the enrichment worker). Clients SHALL respond to invalidation events by triggering a cursor pull.
+
+The SSE channel SHALL only push invalidation metadata; it SHALL NOT push record payloads. The cursor pull endpoint remains the single source of truth for record content.
+
+#### Scenario: Invalidation event reaches another open client
+
+- **WHEN** user A has an SSE connection open in the web client and creates a card via the iOS app
+- **THEN** the web client receives an SSE event with `{ entity: "card", id: <new card id>, updated_at: <timestamp> }` within 1 second of the backend persisting the card
+- **AND** the web client subsequently performs a cursor pull and renders the new card
+
+#### Scenario: SSE never carries record payloads
+
+- **WHEN** an SSE event is sent
+- **THEN** the event body contains only `entity`, `id`, and `updated_at`
+- **AND** the event body does NOT contain `source_text`, `translation`, `explanation`, or any other record field
+
+#### Scenario: Unauthenticated SSE is rejected
+
+- **WHEN** a client attempts to open `GET /sync/stream` without a valid JWT
+- **THEN** the backend responds with HTTP 401 and does NOT open a connection
+
+#### Scenario: SSE only pushes events for the authenticated user
+
+- **WHEN** user A has an SSE connection open and user B creates a card
+- **THEN** user A's SSE connection does NOT receive any event for user B's card
+
 ### Requirement: Push endpoints for cards and decks
 
 The backend SHALL accept create and update requests for cards and decks. Every create SHALL accept a client-generated `id` so retries are idempotent.
