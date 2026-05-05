@@ -20,13 +20,42 @@ suppressPackageStartupMessages({
 # ── 1. Shallow clone ──────────────────────────────────────────────────────────
 
 if (!dir_exists("r-source")) {
-  message("Cloning wch/r-source (depth 1) ...")
-  ret <- system2("git", c("clone", "--depth", "1",
-                           "https://github.com/wch/r-source", "r-source"))
+  message("Cloning wch/r-source (full clone, this may take a while) ...")
+  ret <- system2("git", c("clone", "https://github.com/wch/r-source", "r-source"))
   if (ret != 0L) stop("git clone failed")
 } else {
   message("r-source/ already present, skipping clone.")
+  is_shallow <- tryCatch(
+    system2("git", c("-C", "r-source", "rev-parse", "--is-shallow-repository"),
+            stdout = TRUE, stderr = FALSE) == "true",
+    error = function(e) FALSE
+  )
+  if (isTRUE(is_shallow)) {
+    message("Shallow clone detected, unshallowing ...")
+    system2("git", c("-C", "r-source", "fetch", "--unshallow"))
+  }
 }
+
+message("Running git-recon audit ...")
+if (!file_exists("git-recon.sh")) {
+  download.file(
+    "https://gist.githubusercontent.com/gadenbuie/463ff1e9f3b0f48cddc44db2224d286b/raw",
+    "git-recon.sh", quiet = TRUE, mode = "wb"
+  )
+  Sys.chmod("git-recon.sh", "0755")
+}
+recon_script <- readLines("git-recon.sh")
+recon_script <- recon_script[!grepl("read -r _", recon_script)]
+writeLines(recon_script, "git-recon-nointeract.sh")
+
+recon_raw <- system2(
+  "bash",
+  args   = c("git-recon-nointeract.sh", "r-source"),
+  stdout = TRUE,
+  stderr = FALSE,
+  env    = c(paste0("HOME=", Sys.getenv("HOME")), "TERM=dumb")
+)
+recon_out <- gsub("\x1b\\[[0-9;]*[mKHJ]", "", recon_raw)
 
 sha <- system2("git", c("-C", "r-source", "rev-parse", "HEAD"),
                stdout = TRUE, stderr = FALSE)
@@ -608,6 +637,18 @@ report <- c(
   "### Longest R Function Names",
   "",
   md_table(mutate(long_r_names, File = gh_link(File))),
+  "",
+
+  "## Git Repository Audit",
+  "",
+  paste0(
+    "Output of [`git-recon`](https://gist.github.com/gadenbuie/463ff1e9f3b0f48cddc44db2224d286b) ",
+    "— bus factor, tag cadence, velocity, churn hotspots, and more:"
+  ),
+  "",
+  "```",
+  paste(recon_out, collapse = "\n"),
+  "```",
   "",
 
   "## Cool Facts",
