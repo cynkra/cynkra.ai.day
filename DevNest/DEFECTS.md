@@ -1,10 +1,14 @@
 # DevNest — Defects (visual + interaction review)
 
-> **Status (2026-05-05): all 11 defects resolved.** Re-running the same
-> three Playwright specs that originally surfaced them now reports
-> 16/16 tests passing and 11/11 interaction probes `ok: true`. The
-> "Resolution" block on each defect below records what shipped and how
-> to reproduce the verification.
+> **Status (2026-05-05): 13 of 13 defects resolved.** The original
+> Playwright sweep surfaced 11 (D-1…D-12, skipping D-5 which was
+> closed during review); two more (D-14 hydration mismatch on post
+> timestamps, D-15 dark-mode code-block regression) were caught
+> during a follow-up live-browser review and fixed in the same
+> session. Re-running the three Playwright specs reports 16/16
+> tests passing and 11/11 interaction probes `ok: true`. The
+> "Resolution" block on each defect below records what shipped and
+> how to reproduce the verification.
 
 **Captured:** 2026-05-05 via three Playwright specs:
 
@@ -32,7 +36,7 @@ pnpm exec playwright test tests/e2e/inspection.spec.ts \
 | HTTP / console / network / page errors | **0** | **0** |
 | Interaction probes that pass | 6/11 | **11/11** |
 | Interaction probes that fail | **5/11** | 0/11 |
-| Defects identified | 11 | 0 outstanding |
+| Defects identified | 11 (Playwright sweep) | 0 outstanding (incl. 2 found in follow-up review) |
 
 The app was already functionally clean (nothing throws, no broken
 navigations). All 11 defects were CSS / behaviour / cross-surface gaps
@@ -343,6 +347,144 @@ ranking locally, seed multiple posts with overlapping tags.
 
 ---
 
+## ✅ 🟡 D-14 — `<PostCard>` timestamp triggers an SSR hydration mismatch
+
+**Symptom.** Every post on `/feed` and `/me` logged a recoverable
+"Hydration failed because the server rendered text didn't match the
+client" warning in the browser console, citing the `<time>` element
+inside `<PostCard>`. Server rendered the timestamp as
+`May 5, 2026, 8:08 PM`; client rendered it as `5 May 2026, 20:08`.
+React then regenerated the `<PostCard>` subtree on every page paint.
+
+This was not surfaced by the original Playwright sweep — the inspection
+spec only treats `error`-level console messages as failures, and React
+classifies hydration mismatches as `recoverable` warnings. Caught while
+spot-checking `/me` in a live browser after the initial fix pass.
+
+**Root cause.** [`components/posts/post-card.tsx:15`](components/posts/post-card.tsx#L15)
+declared `new Intl.DateTimeFormat(undefined, { dateStyle: "medium",
+timeStyle: "short" })`. With `undefined` as the locale, Node falls back
+to the server's system locale (en-US, 12-hour) while the browser uses
+`navigator.language` (en-GB / de-CH on this dev machine, 24-hour). The
+two formatters never produced byte-identical output, so hydration
+diffed every timestamp.
+
+**Resolution.** Pinned the formatter to `"en-GB"` so server and client
+emit the same string, and added a comment recording why `undefined` is
+unsafe here.
+
+```ts
+// components/posts/post-card.tsx
+const dateFormatter = new Intl.DateTimeFormat("en-GB", {
+  dateStyle: "medium",
+  timeStyle: "short",
+});
+```
+
+The pinned format (`5 May 2026, 20:08`) is unambiguous internationally
+and matches the 24-hour cadence of most engineering tooling. Per-user
+localisation can be layered on later as a post-hydration upgrade if
+the product wants it.
+
+**Acceptance.** ✅ Reload `/me` → no hydration warning; every
+`<PostCard>` timestamp renders as `5 May 2026, 20:08` consistently in
+DevTools' DOM panel and in screenshots.
+
+---
+
+## ✅ 🟡 D-15 — Code-block backgrounds in light AND dark modes
+
+**Symptom.** Two related issues with the syntax-highlighted code block
+inside `<PostCard>`:
+
+1. **Light mode:** the `<CodeBlock>` body sat flush against the post
+   card with no perceptible color contrast — author wrote a code
+   fence, reader saw it as a continuation of the prose.
+2. **Dark mode:** the code block rendered with light-theme syntax
+   colors (dark gray identifiers / strings) on a near-white panel,
+   making it both unreadable and visually jarring against the dark
+   surrounding card.
+
+Caught by visual review of `/me` and `/feed` in light + dark mode
+after the initial fix pass.
+
+**Root cause.** Two separate omissions in
+[`app/globals.css`](app/globals.css):
+
+1. `.codeblock-body { background: var(--color-bg) }` used the page
+   background, which equals `--color-bg-elev` (the post-card surface)
+   to within ~1% lightness — no usable contrast.
+2. `@shikijs/rehype` was configured with
+   `themes: { light: "github-light", dark: "github-dark" }` (see
+   [`lib/markdown/index.ts:95`](lib/markdown/index.ts#L95)), which
+   emits every span as
+   `<span style="color:LIGHT;--shiki-dark:DARK">`. **Activating the
+   dark variant requires a CSS rule that swaps `color` to
+   `var(--shiki-dark)` under the dark scope** — that rule was never
+   written, so the dark vars were inert and tokens stayed at their
+   light-theme colors regardless of `[data-theme]`.
+
+**Resolution (initial pass — CSS only).** Two changes in
+`app/globals.css`:
+
+```css
+.codeblock-body  { background: var(--color-bg-sunken); }
+.codeblock-gutter{ background: var(--color-bg-sunken); }
+
+/* Activate Shiki's dark-theme color tokens when [data-theme="dark"]
+   is set. Background stays transparent so the body's --bg-sunken
+   shows through — one consistent panel surface across both modes. */
+[data-theme="dark"] .codeblock-body pre,
+[data-theme="dark"] .codeblock-body pre span {
+  color: var(--shiki-dark) !important;
+}
+```
+
+This worked in the live DOM, but the CSS only applied **after**
+hydration. The `.codeblock` / `.codeblock-body` chrome was injected
+client-side by `<PostBody>`'s `useEffect` via direct DOM mutation;
+before hydration the page rendered a naked Shiki `<pre>` with its
+inline `background-color:#fff` showing through. Any hydration delay
+or failure (slow connection, hydration error elsewhere, browser
+extension interfering) reverted the user to that naked-pre state in
+production.
+
+**Resolution (follow-up — SSR-rendered chrome).** Moved the chrome
+out of `useEffect` and into the rehype pipeline so the wrappers
+ship in the cached HTML on the very first server response.
+
+- New plugin
+  [`lib/markdown/rehype-codeblock-chrome.ts`](lib/markdown/rehype-codeblock-chrome.ts)
+  walks the hast tree after `rehypeShiki`, replaces every `<pre>`
+  with the full chrome (`<div class="codeblock">` + header + copy
+  button placeholder + body + line gutter + the `<pre>`).
+- Wired into the unified pipeline in
+  [`lib/markdown/index.ts`](lib/markdown/index.ts) **between** Shiki
+  and `rehype-sanitize`, with the sanitizer schema extended to
+  allow `div`, `button`, plus `className` / `ariaHidden` /
+  `dataCodeblockIndex` / `ariaLabel` / `type` on those elements.
+- `RENDERER_VERSION` bumped from 1 → 2; `lib/feed/home.ts`'s
+  `shapePage` now upgrades any cached row whose `bodyHtmlVersion`
+  predates the current version on read (re-renders + writes back
+  asynchronously). All four feed callers (`home`, `profile`, `tag`,
+  `discovery`) updated to `await` the now-async `shapePage`.
+- [`components/posts/post-body.tsx`](components/posts/post-body.tsx)
+  drastically simplified: kept only the click delegation that
+  handles the copy button and the SVG icon hydration. No more DOM
+  mutation, no more risk of the chrome going missing.
+
+**Acceptance.** ✅
+
+- Curl the page source: every `<pre>` is now wrapped in
+  `<div class="codeblock"><div class="codeblock-header">…</div><div class="codeblock-body">…<pre>…`
+  before any JS runs.
+- Visual: the dark-mode panel shows a recessed gray surface with
+  github-dark token colors, even with JS disabled
+  ([test-results/post-dark-after-ssr-fix.png](test-results/post-dark-after-ssr-fix.png)).
+- All three Playwright specs still pass (`16 passed (3.0m)`).
+
+---
+
 ## Resolved during this session (test-only fix)
 
 - **D-13 — Sidebar profile-menu trigger had no accessible name.**
@@ -384,6 +526,8 @@ ranking locally, seed multiple posts with overlapping tags.
 | D-3 | 🟡 | Sidebar overlaps Next dev-tools bubble | ✅ resolved |
 | D-10 | 🟡 | Char counter "over limit" unreachable | ✅ resolved |
 | D-11 | 🟡 | Sign-out from dropdown doesn't redirect | ✅ resolved |
+| D-14 | 🟡 | `<PostCard>` timestamp triggers SSR hydration mismatch | ✅ resolved (pinned `en-GB`) |
+| D-15 | 🟡 | Code-block: no light-mode contrast + dark-mode tokens illegible | ✅ resolved (`--bg-sunken` + Shiki dark vars) |
 | D-4 | ⚪ | Brand-mark underline drift | ✅ resolved |
 | D-6 | ⚪ | Trending shows "1" in dev | ✅ documented |
 

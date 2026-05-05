@@ -52,5 +52,5 @@ export async function getTagFeed(
     .orderBy(desc(posts.createdAt), desc(posts.id))
     .limit(pageSize + 1);
 
-  return shapePage(rows, pageSize);
+  return await shapePage(rows, pageSize);
 }

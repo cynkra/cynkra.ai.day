@@ -11,13 +11,21 @@ import remarkParse from "remark-parse";
 import remarkRehype from "remark-rehype";
 import { unified } from "unified";
 
+import { rehypeCodeBlockChrome } from "./rehype-codeblock-chrome";
+
 /**
  * Bumped manually whenever the rendering pipeline changes in a way that
  * would alter cached HTML (theme swap, sanitizer rules, language list).
  * `posts.body_html_version` stores this on each row; render lazily when
  * the stored value is below the current version.
+ *
+ * v2 (DEFECTS.md → D-15 follow-up): code-block chrome is now produced
+ * by `rehypeCodeBlockChrome` in the SSR pipeline rather than injected
+ * client-side from `<PostBody>`'s `useEffect`. Cached v1 HTML lacks
+ * the `.codeblock` / `.codeblock-body` wrappers and must be re-rendered
+ * on next read.
  */
-export const RENDERER_VERSION = 1;
+export const RENDERER_VERSION = 2;
 
 /**
  * Languages supported by the syntax highlighter. Anything outside this
@@ -61,6 +69,12 @@ export const SUPPORTED_LANGUAGES = [
  */
 const sanitizeSchema: SanitizeOptions = {
   ...defaultSchema,
+  tagNames: [
+    ...(defaultSchema.tagNames ?? []),
+    // Allow the chrome wrappers and the copy-button rehype emits.
+    "div",
+    "button",
+  ],
   attributes: {
     ...defaultSchema.attributes,
     span: [
@@ -78,6 +92,18 @@ const sanitizeSchema: SanitizeOptions = {
       "tabIndex",
       "style",
       "className",
+    ],
+    div: [
+      ...((defaultSchema.attributes?.div as string[] | undefined) ?? []),
+      "className",
+      "ariaHidden",
+      ["dataCodeblockIndex"],
+    ],
+    button: [
+      ...((defaultSchema.attributes?.button as string[] | undefined) ?? []),
+      "className",
+      "type",
+      "ariaLabel",
     ],
   },
 };
@@ -97,6 +123,10 @@ function buildProcessor() {
       fallbackLanguage: "text",
       langs: [...SUPPORTED_LANGUAGES],
     })
+    // Wrap each <pre> in the DevNest CodeBlock chrome before sanitize
+    // so the sanitizer sees a closed schema and rejects unexpected tags
+    // injected by other transformers (e.g. user-supplied raw HTML).
+    .use(rehypeCodeBlockChrome)
     .use(rehypeSanitize, sanitizeSchema)
     .use(rehypeStringify);
 }

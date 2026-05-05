@@ -19,6 +19,7 @@ import {
   tagFollows,
   users,
 } from "@/lib/db/schema";
+import { RENDERER_VERSION, renderMarkdown } from "@/lib/markdown";
 
 import { type FeedCursor, decodeCursor, encodeCursor } from "./cursor";
 import type { FeedPage, FeedPostRow } from "./types";
@@ -97,7 +98,7 @@ export async function getHomeFeed(
     .orderBy(desc(posts.createdAt), desc(posts.id))
     .limit(pageSize + 1);
 
-  return shapePage(rows, pageSize);
+  return await shapePage(rows, pageSize);
 }
 
 // -----------------------------------------------------------------------------
@@ -114,7 +115,10 @@ type RawRow = {
   authorImage: string | null;
 };
 
-export function shapePage(rows: RawRow[], pageSize: number): FeedPage {
+export async function shapePage(
+  rows: RawRow[],
+  pageSize: number,
+): Promise<FeedPage> {
   const hasMore = rows.length > pageSize;
   const visible = hasMore ? rows.slice(0, pageSize) : rows;
   const last = visible[visible.length - 1];
@@ -125,18 +129,39 @@ export function shapePage(rows: RawRow[], pageSize: number): FeedPage {
           postId: last.id,
         } satisfies FeedCursor)
       : null;
-  return {
-    posts: visible.map(toPostRow),
-    nextCursor,
-  };
+  const upgraded = await Promise.all(visible.map(toPostRow));
+  return { posts: upgraded, nextCursor };
 }
 
-function toPostRow(r: RawRow): FeedPostRow {
+async function toPostRow(r: RawRow): Promise<FeedPostRow> {
+  // Render-on-read upgrade: if the cached HTML predates the current
+  // RENDERER_VERSION (e.g. a pipeline change like the SSR code-block
+  // chrome added in v2 — DEFECTS.md → D-15), re-render now and write
+  // back to the DB so subsequent reads serve the up-to-date HTML.
+  let bodyHtml = r.bodyHtml;
+  let bodyHtmlVersion = r.bodyHtmlVersion;
+  if (
+    bodyHtml === null ||
+    bodyHtmlVersion === null ||
+    bodyHtmlVersion < RENDERER_VERSION
+  ) {
+    const rendered = await renderMarkdown(r.body);
+    bodyHtml = rendered.html;
+    bodyHtmlVersion = rendered.version;
+    // Persist the upgrade in the background. If the write fails (e.g.
+    // read-replica routing), the next read will simply re-render —
+    // not worth blocking the response on.
+    void db
+      .update(posts)
+      .set({ bodyHtml, bodyHtmlVersion })
+      .where(eq(posts.id, r.id))
+      .catch(() => {});
+  }
   return {
     id: r.id,
     body: r.body,
-    bodyHtml: r.bodyHtml,
-    bodyHtmlVersion: r.bodyHtmlVersion,
+    bodyHtml,
+    bodyHtmlVersion,
     createdAt: r.createdAt,
     author: {
       id: r.authorId,
