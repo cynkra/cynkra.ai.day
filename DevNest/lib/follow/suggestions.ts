@@ -1,6 +1,6 @@
 import "server-only";
 
-import { and, desc, eq, isNull, ne, notInArray, sql } from "drizzle-orm";
+import { and, desc, eq, isNull, ne, sql } from "drizzle-orm";
 
 import { db } from "@/lib/db";
 import { follows, users } from "@/lib/db/schema";
@@ -12,6 +12,8 @@ export type FollowSuggestion = {
   image: string | null;
   headline: string | null;
   followerCount: number;
+  /** True when the viewer already follows this user. */
+  isFollowing: boolean;
 };
 
 /**
@@ -20,27 +22,29 @@ export type FollowSuggestion = {
  * 2nd-degree-based recommender. Excludes:
  *   - the viewer themselves
  *   - soft-deleted users
- *   - users the viewer already follows (when viewer is signed in)
+ *
+ * We deliberately *keep* users the viewer already follows in the result
+ * (with `isFollowing: true`) so the in-rail Follow / Following toggle
+ * works in place. Filtering them out caused a confusing UX where
+ * clicking Follow made the row vanish and a different user appeared,
+ * making the button look like it had reset to "Follow".
  */
 export async function getFollowSuggestions(
   viewerId: string | null,
   limit = 3,
 ): Promise<FollowSuggestion[]> {
-  let alreadyFollowing: string[] = [];
+  let alreadyFollowing = new Set<string>();
   if (viewerId) {
     const rows = await db
       .select({ targetUserId: follows.targetUserId })
       .from(follows)
       .where(eq(follows.followerId, viewerId));
-    alreadyFollowing = rows.map((r) => r.targetUserId);
+    alreadyFollowing = new Set(rows.map((r) => r.targetUserId));
   }
 
   const conditions = [isNull(users.deletedAt)];
   if (viewerId) {
     conditions.push(ne(users.id, viewerId));
-    if (alreadyFollowing.length > 0) {
-      conditions.push(notInArray(users.id, alreadyFollowing));
-    }
   }
 
   const rows = await db
@@ -67,5 +71,6 @@ export async function getFollowSuggestions(
     image: r.image,
     headline: r.headline,
     followerCount: Number(r.followerCount ?? 0),
+    isFollowing: alreadyFollowing.has(r.id),
   }));
 }

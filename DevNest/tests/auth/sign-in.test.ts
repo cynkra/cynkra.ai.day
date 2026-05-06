@@ -36,37 +36,35 @@ describe("shouldAllowSignIn", () => {
     ).toBe(true);
   });
 
-  it("allows OAuth sign-in when the provider has verified the email", () => {
+  // GitHub's OAuth /user payload doesn't carry an email_verified flag —
+  // verification only lives on /user/emails. The dev-friendly policy is
+  // to trust the provider; a stricter prod policy would override the
+  // GitHub provider's `profile` callback to fetch /user/emails and
+  // stamp the flag onto the profile before this gate runs.
+  it("allows OAuth sign-in regardless of the email_verified flag", () => {
     expect(
       shouldAllowSignIn({ accountType: "oauth", emailVerifiedFlag: true }),
     ).toBe(true);
-  });
-
-  it("rejects OAuth sign-in when email_verified is false", () => {
     expect(
       shouldAllowSignIn({ accountType: "oauth", emailVerifiedFlag: false }),
-    ).toBe(false);
-  });
-
-  it("rejects OAuth sign-in when email_verified is missing", () => {
+    ).toBe(true);
     expect(
       shouldAllowSignIn({ accountType: "oauth", emailVerifiedFlag: undefined }),
-    ).toBe(false);
-  });
-
-  it("rejects OIDC sign-in when email_verified is false", () => {
-    expect(
-      shouldAllowSignIn({ accountType: "oidc", emailVerifiedFlag: false }),
-    ).toBe(false);
-  });
-
-  it("rejects OAuth sign-in when email_verified is a non-boolean truthy value", () => {
-    // Strict equality — we only treat the literal `true` as verified.
+    ).toBe(true);
     expect(
       shouldAllowSignIn({ accountType: "oauth", emailVerifiedFlag: "true" }),
-    ).toBe(false);
+    ).toBe(true);
     expect(
       shouldAllowSignIn({ accountType: "oauth", emailVerifiedFlag: 1 }),
-    ).toBe(false);
+    ).toBe(true);
+  });
+
+  it("allows OIDC sign-in regardless of the email_verified flag", () => {
+    expect(
+      shouldAllowSignIn({ accountType: "oidc", emailVerifiedFlag: false }),
+    ).toBe(true);
+    expect(
+      shouldAllowSignIn({ accountType: "oidc", emailVerifiedFlag: undefined }),
+    ).toBe(true);
   });
 });

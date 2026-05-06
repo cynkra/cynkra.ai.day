@@ -108,7 +108,7 @@ export async function RightRail({ authenticated }: { authenticated: boolean }) {
                   <FollowButton
                     type="user"
                     targetId={user.id}
-                    initiallyFollowing={false}
+                    initiallyFollowing={user.isFollowing}
                     authenticated={authenticated}
                   />
                 </li>

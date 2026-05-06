@@ -68,9 +68,23 @@ export function ProviderPanel({ snapshots }: { snapshots: Snapshot[] }) {
               ) : null}
               {!s.publicRepoCount &&
               (!s.topLanguages || s.topLanguages.length === 0) ? (
-                <p className="text-muted-foreground text-xs italic">
-                  Snapshot pending — sign back in to refresh.
-                </p>
+                // Two distinct empty states:
+                //  - htmlUrl present → we DID capture a snapshot; the
+                //    user just has no public projects to summarise.
+                //    Re-signing-in won't change that, so don't suggest it.
+                //  - htmlUrl null → we never persisted anything (likely
+                //    the OAuth events.signIn handler couldn't reach the
+                //    provider API). Pointing at sign-in is the right hint.
+                s.htmlUrl ? (
+                  <p className="text-muted-foreground text-xs italic">
+                    No public projects to summarise — visit {label} for the
+                    full picture.
+                  </p>
+                ) : (
+                  <p className="text-muted-foreground text-xs italic">
+                    Snapshot pending — sign back in to refresh.
+                  </p>
+                )
               ) : null}
             </CardContent>
           </Card>

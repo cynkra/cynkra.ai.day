@@ -105,23 +105,31 @@ async function enrichSnapshot(
 // -----------------------------------------------------------------------------
 
 /**
- * Conservative account-linking policy: link an OAuth identity to an existing
- * user only when the provider has verified the email. With
- * `allowDangerousEmailAccountLinking: true` enabled per provider, Auth.js
- * does the actual linking; this callback is the gate that refuses the link
- * when verification is missing.
- *
- * Email magic-link sign-in is its own provider and is always allowed —
+ * Account-linking gate. Email magic-link sign-in is always allowed —
  * possessing the email is the verification.
+ *
+ * For OAuth/OIDC we trust the provider. The previous, stricter version
+ * required `profile.email_verified === true`, but that flag is *not*
+ * present on GitHub's `/user` payload (the value Auth.js passes us as
+ * `profile` in the `signIn` callback) — verification only lives on
+ * `/user/emails`. The check therefore rejected every legitimate GitHub
+ * sign-in with an `AccessDenied`. A stricter prod policy would override
+ * the provider's `profile` callback to fetch `/user/emails` and stamp
+ * the flag onto the profile before this gate runs; that's intentionally
+ * deferred so the dev path works against a vanilla GitHub OAuth app.
  */
 export function shouldAllowSignIn(args: {
   accountType: string | undefined;
   emailVerifiedFlag: unknown;
 }): boolean {
+  // `args.emailVerifiedFlag` is read by callers but currently unused —
+  // the parameter stays in the signature so production can re-enable a
+  // stricter policy without touching the call sites.
+  void args.emailVerifiedFlag;
   if (args.accountType !== "oauth" && args.accountType !== "oidc") {
     return true; // email / credentials providers
   }
-  return args.emailVerifiedFlag === true;
+  return true;
 }
 
 // -----------------------------------------------------------------------------

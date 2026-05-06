@@ -103,9 +103,10 @@ export function PostCard({ post }: { post: FeedPostRow }) {
 
         <button
           type="button"
-          className="text-foreground/40 hover:bg-[var(--color-hover)] hover:text-foreground -mr-1 rounded p-1 transition-colors"
+          disabled
+          className="text-foreground/40 -mr-1 cursor-not-allowed rounded p-1 transition-colors disabled:opacity-50"
           aria-label="More post actions"
-          title="More"
+          title="Coming in v0.2"
         >
           <MoreHorizontal className="size-4" />
         </button>
@@ -130,7 +131,12 @@ export function PostCard({ post }: { post: FeedPostRow }) {
 function ActionRow() {
   return (
     <div className="mt-3 flex items-center gap-1 text-[var(--color-ink-faint)]">
-      <ActionButton icon={<Heart className="size-4" />} label="0" title="Like (v0.1)" />
+      <ActionButton
+        icon={<Heart className="size-4" />}
+        label="0"
+        title="Likes coming in v0.2"
+        disabled
+      />
       <ActionButton
         icon={<MessageSquare className="size-4" />}
         label="—"

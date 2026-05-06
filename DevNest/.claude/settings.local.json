@@ -38,7 +38,8 @@
       "Bash(openspec archive *)",
       "Bash(curl -sf http://localhost:3000/feed -o /dev/null -w \"%{http_code}\\\\n\")",
       "Bash(python3 -c \"import json,sys; data=json.load\\(sys.stdin\\); ok=sum\\(1 for f in data if f['ok']\\); print\\(f'{ok}/{len\\(data\\)} ok'\\); [print\\(f\\\\\"  - {f['id']}: {'PASS' if f['ok'] else 'FAIL'}\\\\\"\\) for f in data]\")",
-      "Bash(python3 -c ' *)"
+      "Bash(python3 -c ' *)",
+      "Bash(curl -s \"http://localhost:3000/u/e2e_0_1777983993569\")"
     ]
   }
 }
