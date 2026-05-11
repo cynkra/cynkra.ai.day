@@ -103,9 +103,15 @@ function getNextOooInterval() {
   }
 
   for (var j = 0; j < fused.length; j++) {
-    if (fused[j].end >= today) {
-      console.log('Next OOO interval: %s → %s', formatDate_(fused[j].start), formatDate_(fused[j].end));
-      return fused[j];
+    // Extend the interval end to the day before available_date (= last day before the user
+    // can respond). For a Friday OOO this is Sunday, so the responder stays active through
+    // the weekend and the idempotency check does not trigger a spurious update on Saturday.
+    // nextWorkingDay_() is defined in GmailManager.gs (all .gs files share global scope).
+    var extendedEnd = addDays_(nextWorkingDay_(fused[j].end), -1);
+    if (extendedEnd >= today) {
+      console.log('Next OOO interval: %s → %s (extended from calendar end %s)',
+        formatDate_(fused[j].start), formatDate_(extendedEnd), formatDate_(fused[j].end));
+      return { start: fused[j].start, end: extendedEnd };
     }
   }
 
