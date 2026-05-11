@@ -8,9 +8,10 @@ A daily trigger calls `sync()`, which:
 
 1. Fetches all-day "Out of office" events from your primary Google Calendar (up to 90 days ahead, with recursive window extension for events near the boundary)
 2. Fuses overlapping OOO intervals into a single period
-3. Pre-configures Gmail's vacation responder with the correct start and end dates — Gmail handles activation/deactivation automatically
-4. Sends you a confirmation email whenever the responder is updated or disabled
-5. Sends you an error email (and re-throws) if anything goes wrong
+3. Extends the interval end to the day before the first working day after the last OOO day — so a Friday absence keeps the responder active through the weekend
+4. Pre-configures Gmail's vacation responder with the correct start and end dates — Gmail handles activation/deactivation automatically
+5. Sends you a confirmation email whenever the responder is updated or disabled
+6. Sends you an error email (and re-throws) if anything goes wrong
 
 ## Setup
 
@@ -72,6 +73,8 @@ To stop the automation:
 
 ## Notes
 
-- Only **all-day** events of type **Out of office** (created via Google Calendar's "Out of office" event type) are detected. Regular events with "OOO" in the title are not picked up.
+- Only events of type **Out of office** (created via Google Calendar's "Out of office" event type) are detected. Regular events with "OOO" in the title are not picked up.
+- The responder stays active through the weekend after a Friday (or multi-day) OOO — it is disabled on the first working day you are back.
+- The `{available_date}` placeholder in the message resolves to the first working day after the last OOO day (e.g. Friday OOO → Monday date).
 - If you manually change your Gmail vacation responder between runs, the next daily trigger will restore the script-managed state.
 - The script sends you an email whenever it makes a change or encounters an error. If the state is already correct it runs silently.

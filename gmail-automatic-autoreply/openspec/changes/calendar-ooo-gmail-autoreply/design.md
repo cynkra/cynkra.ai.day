@@ -94,6 +94,7 @@ The system runs on a daily Apps Script time-based trigger. It fetches upcoming O
 
 - **Overlapping OOO events** → Mitigation: Intervals are fused; the union of all overlapping events determines the autoreply period.
 - **OOO event near the 90-day window boundary** → Mitigation: Recursive window extension ensures events that straddle the boundary are correctly fused with events just outside it.
+- **Responder active past the last OOO day** → By design: the interval end is extended to the day before `available_date` (e.g. through Sunday for a Friday OOO) so the responder stays active while the user cannot yet respond. The daily run on Saturday/Sunday sees the interval as still current and makes no change.
 - **User manually changes autoreply** → Trade-off: The next daily run will restore the script-managed state. This is documented and accepted.
 - **Rate limits** → Mitigation: A single run makes at most 3–5 API calls (calendar fetch + possible extensions + gmail read/write); well within Google API quotas.
 - **Apps Script quota** → Mitigation: Daily trigger uses negligible quota. Apps Script free tier allows 6 min/day execution time; this script runs in under a second.
