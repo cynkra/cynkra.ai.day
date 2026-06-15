@@ -78,7 +78,9 @@ function fuseIntervals_(events) {
  */
 function getNextOooInterval() {
   var today = startOfDay_(new Date());
-  var windowStart = today;
+  // Look back 2 days so a Friday OOO event is still fetched on Saturday/Sunday,
+  // allowing extendedEnd (Sunday) >= today to keep it as the active interval.
+  var windowStart = addDays_(today, -2);
   var windowEnd = addDays_(today, LOOKAHEAD_DAYS);
 
   console.log('Starting OOO interval search. Today: %s, initial window end: %s', formatDate_(today), formatDate_(windowEnd));
