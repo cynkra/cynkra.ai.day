@@ -1,0 +1,130 @@
+name: CI
+
+on:
+  push:
+    branches: [main, devnest-main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ci:
+    name: typecheck + lint + test + smoke + e2e
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: devnest
+          POSTGRES_PASSWORD: devnest
+          POSTGRES_DB: devnest
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+      mailhog:
+        image: mailhog/mailhog:latest
+        ports:
+          - 1025:1025
+          - 8025:8025
+
+    env:
+      # Real OAuth/email creds aren't needed for CI; the boot validator just
+      # wants the env to be well-formed. Production deploys use real values.
+      NEXTAUTH_URL: http://localhost:3000
+      AUTH_SECRET: ${{ secrets.AUTH_SECRET || 'ci-placeholder-secret-must-be-32-chars-or-more' }}
+      DATABASE_URL: postgres://devnest:devnest@localhost:5432/devnest
+      GITHUB_CLIENT_ID: ci-placeholder
+      GITHUB_CLIENT_SECRET: ci-placeholder
+      GITLAB_CLIENT_ID: ci-placeholder
+      GITLAB_CLIENT_SECRET: ci-placeholder
+      EMAIL_SERVER_HOST: localhost
+      EMAIL_SERVER_PORT: "1025"
+      EMAIL_FROM: DevNest <ci@devnest.local>
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.5
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - run: pnpm typecheck
+
+      - run: pnpm lint
+
+      - run: pnpm test
+
+      - name: Apply migrations
+        # Use `migrate` (not `push`) so missing migration files fail CI.
+        run: pnpm exec drizzle-kit migrate
+
+      - run: pnpm build
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        id: playwright-cache
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+
+      - name: Install Playwright Chromium
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Install Playwright system deps (cached browsers)
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: pnpm exec playwright install-deps chromium
+
+      - name: Start app and smoke-test /api/health
+        # Start the production server in the background; subsequent steps
+        # (Playwright e2e) reuse this running instance via
+        # `playwright.config.ts`'s `reuseExistingServer: true` semantics.
+        run: |
+          pnpm start &
+          echo $! > app.pid
+          for i in $(seq 1 30); do
+            if curl -fsS -o /tmp/health.json -w "%{http_code}\n" http://localhost:3000/api/health | grep -q '^200$'; then
+              echo "Health check passed"
+              cat /tmp/health.json
+              break
+            fi
+            if [ "$i" -eq 30 ]; then
+              echo "App did not return HTTP 200 from /api/health within 30s"
+              kill "$(cat app.pid)" 2>/dev/null || true
+              exit 1
+            fi
+            sleep 1
+          done
+
+      - name: Playwright e2e
+        run: pnpm test:e2e
+
+      - name: Upload Playwright report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            playwright-report
+            test-results
+          retention-days: 14
+
+      - name: Stop app
+        if: always()
+        run: kill "$(cat app.pid)" 2>/dev/null || true

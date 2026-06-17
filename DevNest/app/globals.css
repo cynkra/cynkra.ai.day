@@ -1,0 +1,422 @@
+@import "tailwindcss";
+
+/*
+ * Dark theme is keyed off `[data-theme="dark"]` (set by next-themes via
+ * the `attribute="data-theme"` prop). Density, layout, and code-style
+ * are sibling data attributes documented in tokens.md / design.md.
+ */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+@theme {
+  /* === Color — light (default) === */
+  --color-bg:           oklch(0.99 0.003 270);
+  --color-bg-elev:      oklch(1.00 0.000 0);
+  --color-bg-sunken:    oklch(0.97 0.005 270);
+
+  --color-ink:          oklch(0.22 0.01  270);
+  --color-ink-muted:    oklch(0.45 0.01  270);
+  --color-ink-faint:    oklch(0.62 0.01  270);
+
+  --color-border:       oklch(0.92 0.005 270);
+  --color-border-strong:oklch(0.85 0.008 270);
+  --color-hover:        oklch(0.95 0.005 270);
+
+  --color-accent:       oklch(0.62 0.16  35);   /* warm amber */
+  --color-accent-bg:    oklch(0.96 0.04  35);
+  --color-accent-ink:   oklch(0.45 0.18  35);
+
+  --color-ok:           oklch(0.65 0.16 145);
+  --color-warn:         oklch(0.72 0.16  85);
+  --color-danger:       oklch(0.58 0.20  25);
+
+  /* === shadcn primitive aliases ===
+   * Tailwind v4 generates utilities (`bg-primary`, `text-card-foreground`,
+   * `ring-ring`, etc.) only from `--color-*` tokens declared inside
+   * `@theme`. The shadcn primitives (`<Button>`, `<Input>`, `<Card>`,
+   * `<DropdownMenu>`, …) reference these names; defining them here makes
+   * those utilities resolve. Dark-theme overrides live below.
+   */
+  --color-background:             var(--color-bg);
+  --color-foreground:             var(--color-ink);
+  --color-card:                   var(--color-bg-elev);
+  --color-card-foreground:        var(--color-ink);
+  --color-popover:                var(--color-bg-elev);
+  --color-popover-foreground:     var(--color-ink);
+  --color-muted:                  var(--color-bg-sunken);
+  --color-muted-foreground:       var(--color-ink-muted);
+  --color-secondary:              var(--color-bg-sunken);
+  --color-secondary-foreground:   var(--color-ink);
+  --color-accent-foreground:      var(--color-accent-ink);
+  --color-input:                  var(--color-border);
+  --color-ring:                   var(--color-accent);
+  --color-primary:                var(--color-accent);
+  --color-primary-foreground:     oklch(1 0 0);
+  --color-destructive:            var(--color-danger);
+  --color-destructive-foreground: oklch(0.985 0 0);
+
+  /* === Syntax tokens (Shiki theme remap) === */
+  --color-syn-keyword:  oklch(0.50 0.20 305);
+  --color-syn-string:   oklch(0.45 0.16 145);
+  --color-syn-num:      oklch(0.55 0.16  60);
+  --color-syn-fn:       oklch(0.50 0.16 240);
+  --color-syn-comment:  oklch(0.62 0.01 270);
+
+  /* === Type === */
+  --font-sans: ui-sans-serif, -apple-system, "Segoe UI", system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, "SF Mono", Menlo, monospace;
+
+  /* === Radius === */
+  --radius-sm: 4px;
+  --radius:    8px;
+  --radius-lg: 12px;
+
+  /* === Shadow === */
+  --shadow-sm: 0 1px 2px oklch(0.18 0.005 270 / 0.06);
+  --shadow-md: 0 4px 16px oklch(0.18 0.005 270 / 0.10);
+
+  /* === Density (overridden by [data-density] below) === */
+  --pad-card: 16px;
+  --row-h: 32px;
+
+  /* === Layout (overridden by [data-layout] below) === */
+  --col-nav: 240px;
+  --col-side: 320px;
+}
+
+/* === Dark theme ===
+ * Override the same names declared inside @theme. Tailwind reads the
+ * literal `--color-*` value at runtime via `var(...)` in the generated
+ * utilities, so these overrides flow through bg-primary / text-foreground
+ * / border-border / etc. without any extra alias indirection.
+ */
+[data-theme="dark"] {
+  --color-bg:           oklch(0.18 0.005 270);
+  --color-bg-elev:      oklch(0.22 0.005 270);
+  --color-bg-sunken:    oklch(0.16 0.008 270);
+
+  --color-ink:          oklch(0.94 0.005 270);
+  --color-ink-muted:    oklch(0.72 0.008 270);
+  --color-ink-faint:    oklch(0.55 0.008 270);
+
+  --color-border:       oklch(0.28 0.008 270);
+  --color-border-strong:oklch(0.36 0.010 270);
+  --color-hover:        oklch(0.24 0.008 270);
+
+  --color-accent:       oklch(0.72 0.16 35);
+  --color-accent-bg:    oklch(0.30 0.06 35);
+  --color-accent-ink:   oklch(0.85 0.14 35);
+
+  --color-syn-keyword:  oklch(0.78 0.16 305);
+  --color-syn-string:   oklch(0.78 0.14 145);
+  --color-syn-num:      oklch(0.80 0.14  60);
+  --color-syn-fn:       oklch(0.80 0.14 240);
+  --color-syn-comment:  oklch(0.55 0.01 270);
+
+  /* shadcn primitive aliases re-pointed for dark — most just chain
+     through the dark `--color-*` tokens above; primary-foreground stays
+     near-white for contrast on the brighter dark accent. */
+  --color-background:             var(--color-bg);
+  --color-foreground:             var(--color-ink);
+  --color-card:                   var(--color-bg-elev);
+  --color-card-foreground:        var(--color-ink);
+  --color-popover:                var(--color-bg-elev);
+  --color-popover-foreground:     var(--color-ink);
+  --color-muted:                  var(--color-bg-sunken);
+  --color-muted-foreground:       var(--color-ink-muted);
+  --color-secondary:              var(--color-bg-sunken);
+  --color-secondary-foreground:   var(--color-ink);
+  --color-accent-foreground:      var(--color-accent-ink);
+  --color-input:                  var(--color-border);
+  --color-ring:                   var(--color-accent);
+  --color-primary:                var(--color-accent);
+  --color-primary-foreground:     oklch(0.18 0.005 270);
+  --color-destructive:            var(--color-danger);
+  --color-destructive-foreground: oklch(0.985 0 0);
+}
+
+/* === Density (modifies internal paddings on cards / composer) === */
+[data-density="compact"]    { --pad-card: 12px; --row-h: 28px; }
+[data-density="comfortable"]{ --pad-card: 16px; --row-h: 32px; }
+[data-density="spacious"]   { --pad-card: 20px; --row-h: 36px; }
+
+/* === Layout === */
+[data-layout="single"] { --col-nav: 0;     --col-side: 0; }
+[data-layout="two"]    { --col-nav: 240px; --col-side: 0; }
+[data-layout="three"]  { --col-nav: 240px; --col-side: 320px; }
+[data-layout="wide"]   { --col-nav: 280px; --col-side: 360px; }
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+  *:focus-visible {
+    /* Single accent focus ring on every interactive element, per
+       design.md § Accessibility. shadcn primitives override with their
+       own ring; this is the catch-all. */
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+  body {
+    background: var(--color-bg);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+  }
+  /* Per design.md typography rules — pretty-wrap long text. */
+  p, h1, h2, h3, h4, .post-body {
+    text-wrap: pretty;
+  }
+  /* Deterministic mono surface for any element marked as "data". */
+  code, kbd, samp, pre, .mono {
+    font-family: var(--font-mono);
+  }
+}
+
+/*
+ * ============================================================
+ * Post body — markdown output
+ * ============================================================
+ * Plain prose styles tuned for 13/1.55 dense reading. No tailwind
+ * `prose` plugin; we want full control over the surface so syntax
+ * colors don't fight the body.
+ */
+.post-body {
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--color-ink);
+}
+.post-body p,
+.post-body ul,
+.post-body ol,
+.post-body blockquote,
+.post-body h1,
+.post-body h2,
+.post-body h3,
+.post-body h4 {
+  margin-block: 0.5em;
+}
+.post-body h1, .post-body h2, .post-body h3, .post-body h4 {
+  font-weight: 600;
+  line-height: 1.3;
+}
+.post-body h1 { font-size: 16px; }
+.post-body h2 { font-size: 15px; }
+.post-body h3 { font-size: 14px; }
+.post-body h4 { font-size: 13px; }
+.post-body a {
+  color: var(--color-accent-ink);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+.post-body a:hover { text-decoration-thickness: 2px; }
+.post-body :where(p, li) > code {
+  font-size: 12px;
+  padding: 1px 4px;
+  border-radius: 4px;
+  background: var(--color-bg-sunken);
+}
+.post-body ul, .post-body ol { padding-left: 1.5em; }
+.post-body ul { list-style: disc; }
+.post-body ol { list-style: decimal; }
+.post-body table {
+  border-collapse: collapse;
+  font-size: 12px;
+  margin-block: 0.5em;
+}
+.post-body th, .post-body td {
+  border: 1px solid var(--color-border);
+  padding: 4px 8px;
+  text-align: left;
+}
+
+/*
+ * ============================================================
+ * <CodeBlock> — three styles, gated by [data-code-style]
+ * ============================================================
+ * Outer wrapper (.codeblock) is injected by PostBody around each
+ * <pre> in markdown output, and rendered directly by the standalone
+ * <CodeBlock> component. The same DOM serves all three variants —
+ * the difference is purely CSS keyed off the ancestor html
+ * `data-code-style` attribute.
+ */
+
+.codeblock {
+  display: block;
+  margin-block: 12px;
+  font-family: var(--font-mono);
+  position: relative;
+}
+.codeblock-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  height: 28px;
+  padding: 0 10px;
+  background: var(--color-bg-sunken);
+  border-top-left-radius: var(--radius);
+  border-top-right-radius: var(--radius);
+}
+.codeblock-lang {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-ink-faint);
+}
+.codeblock-copy {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 22px;
+  padding: 0 6px;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  color: var(--color-ink-muted);
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background-color 120ms ease-out, color 120ms ease-out;
+}
+.codeblock-copy:hover {
+  background: var(--color-hover);
+  color: var(--color-ink);
+}
+.codeblock-copy:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+.codeblock-body {
+  display: flex;
+  /* `--bg-sunken` instead of `--bg` so the code area is visibly recessed
+     against the post card (`--bg-elev`) in light mode. In dark mode it
+     stays a touch darker than the card too. */
+  background: var(--color-bg-sunken);
+  border: 1px solid var(--color-border);
+  border-top: 0;
+  border-bottom-left-radius: var(--radius);
+  border-bottom-right-radius: var(--radius);
+  overflow: hidden;
+}
+.codeblock-gutter {
+  display: none;
+  flex: 0 0 auto;
+  width: 32px;
+  padding: 10px 0;
+  border-right: 1px solid var(--color-border);
+  font-size: 11px;
+  line-height: 1.65;
+  color: var(--color-ink-faint);
+  text-align: right;
+  user-select: none;
+  background: var(--color-bg-sunken);
+}
+
+/* === Shiki dual-theme activation ===
+ * `@shikijs/rehype` is configured with `themes: { light, dark }`, which
+ * emits every token as `<span style="color:LIGHT;--shiki-dark:DARK">`.
+ * Without an explicit rule the dark vars stay inert — tokens render in
+ * the light theme even when `[data-theme="dark"]`. We override `color`
+ * (and the `<pre>`'s color) on every Shiki node so the dark variant
+ * activates without re-running the highlighter. The container's bg is
+ * already supplied by `.codeblock-body` above. */
+[data-theme="dark"] .codeblock-body pre,
+[data-theme="dark"] .codeblock-body pre span {
+  color: var(--shiki-dark) !important;
+}
+.codeblock-gutter > span {
+  display: block;
+  padding-right: 6px;
+}
+.codeblock-body > pre {
+  margin: 0;
+  padding: 10px 12px;
+  font-size: 12px;
+  line-height: 1.65;
+  background: transparent !important;
+  flex: 1 1 auto;
+  overflow-x: auto;
+  min-width: 0;
+}
+.codeblock-body > pre code {
+  font-family: inherit;
+  font-size: inherit;
+  background: transparent !important;
+  padding: 0;
+  border: 0;
+}
+
+/* === Style: ide (default) — header + gutter visible === */
+[data-code-style="ide"] .codeblock-gutter {
+  display: block;
+}
+
+/* === Style: card — no header chrome, copy button floats on hover === */
+[data-code-style="card"] .codeblock-header {
+  display: none;
+}
+[data-code-style="card"] .codeblock-body {
+  border-radius: var(--radius);
+  border: 1px solid var(--color-border);
+}
+[data-code-style="card"] .codeblock {
+  position: relative;
+}
+[data-code-style="card"] .codeblock-copy-floating-anchor {
+  /* Recreate a floating copy button. We render the same .codeblock-copy
+     in the header but show it positioned absolutely. This selector
+     hooks the existing button into the absolute layout. */
+}
+[data-code-style="card"] .codeblock-header,
+[data-code-style="card"] .codeblock {
+  display: revert;
+}
+/* Card style: hide header text, but keep the copy button floating. */
+[data-code-style="card"] .codeblock {
+  display: block;
+}
+[data-code-style="card"] .codeblock-header {
+  display: flex;
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  height: auto;
+  padding: 0;
+  background: transparent;
+  border-radius: 0;
+  z-index: 1;
+  opacity: 0;
+  transition: opacity 120ms ease-out;
+  pointer-events: none;
+}
+[data-code-style="card"] .codeblock:hover .codeblock-header,
+[data-code-style="card"] .codeblock:focus-within .codeblock-header {
+  opacity: 1;
+  pointer-events: auto;
+}
+[data-code-style="card"] .codeblock-lang {
+  display: none;
+}
+[data-code-style="card"] .codeblock-copy {
+  background: var(--color-bg-elev);
+  border: 1px solid var(--color-border);
+}
+
+/* === Style: subtle — inline-feeling, no chrome, left rule === */
+[data-code-style="subtle"] .codeblock-header {
+  display: none;
+}
+[data-code-style="subtle"] .codeblock-body {
+  background: transparent;
+  border: 0;
+  border-left: 2px solid var(--color-border);
+  border-radius: 0;
+  padding-left: 12px;
+}
+[data-code-style="subtle"] .codeblock-gutter {
+  display: none;
+}
+[data-code-style="subtle"] .codeblock-body > pre {
+  padding: 0;
+}
