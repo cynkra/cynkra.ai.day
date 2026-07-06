@@ -49,8 +49,7 @@ function fetchOooEvents_(windowStart, windowEnd) {
 }
 
 /**
- * Merges overlapping intervals. Intervals are merged only when they overlap,
- * not merely when they are adjacent.
+ * Merges overlapping or adjacent intervals into a single period.
  */
 function fuseIntervals_(events) {
   if (events.length === 0) return [];
@@ -62,7 +61,7 @@ function fuseIntervals_(events) {
   for (var i = 1; i < events.length; i++) {
     var current = fused[fused.length - 1];
     var next = events[i];
-    if (next.start <= current.end) {
+    if (next.start <= addDays_(current.end, 1)) {
       if (next.end > current.end) current.end = next.end;
     } else {
       fused.push({ start: next.start, end: next.end });

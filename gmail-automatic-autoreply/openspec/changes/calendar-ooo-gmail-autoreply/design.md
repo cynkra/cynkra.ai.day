@@ -92,7 +92,7 @@ The system runs on a daily Apps Script time-based trigger. It fetches upcoming O
 
 ## Risks / Trade-offs
 
-- **Overlapping OOO events** → Mitigation: Intervals are fused; the union of all overlapping events determines the autoreply period.
+- **Overlapping or adjacent OOO events** → Mitigation: Intervals are fused; consecutive or overlapping events are merged into a single period (e.g. a Mon–Thu block followed by a Friday event is treated as one Mon–Fri period).
 - **OOO event near the 90-day window boundary** → Mitigation: Recursive window extension ensures events that straddle the boundary are correctly fused with events just outside it.
 - **Responder active past the last OOO day** → By design: the interval end is extended to the day before `available_date` (e.g. through Sunday for a Friday OOO) so the responder stays active while the user cannot yet respond. The daily run on Saturday/Sunday sees the interval as still current and makes no change.
 - **User manually changes autoreply** → Trade-off: The next daily run will restore the script-managed state. This is documented and accepted.
